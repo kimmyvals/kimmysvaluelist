@@ -96,6 +96,16 @@ function Index() {
       }
       return true;
     });
+    // Low-perf: dedupe identical entries (same name + weapon + case) to reduce render load
+    if (settings.lowPerf) {
+      const seen = new Set<string>();
+      out = out.filter((s) => {
+        const k = `${s.name}|${s.weapon_type}|${s.season}`;
+        if (seen.has(k)) return false;
+        seen.add(k);
+        return true;
+      });
+    }
     out = [...out].sort((a, b) => {
       switch (sort) {
         case "value-desc": return Number(b.value) - Number(a.value);
@@ -105,10 +115,9 @@ function Index() {
       }
     });
     return out;
-  }, [tabSkins, weapon, caseFilter, rarity, search, sort]);
+  }, [tabSkins, weapon, caseFilter, rarity, search, sort, settings.lowPerf]);
 
   const openEdit = (s: Skin) => {
-    if (!isEditor) return;
     setSelected(s); setIsNew(false); setDialogOpen(true);
   };
   const openNew = () => {
