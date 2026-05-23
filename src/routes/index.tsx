@@ -80,6 +80,16 @@ function Index() {
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
+    const tokens = q.split(/\s+/).filter(Boolean);
+    // Exotic weapon aliases: searching the alias matches the canonical weapon.
+    const WEAPON_ALIASES: Record<string, string[]> = {
+      Wrench: ["hammer"],
+      Balisong: ["stiletto"],
+      "Fire Axe": ["tactical"],
+      Machete: ["zk"],
+      Bat: ["cricket"],
+      Rambo: ["bowie"],
+    };
     let out = tabSkins.filter((s) => {
       if (weapon !== "all" && s.weapon_type !== weapon) return false;
       if (caseFilter !== "all") {
@@ -88,11 +98,11 @@ function Index() {
         } else if (s.season !== caseFilter) return false;
       }
       if (rarity !== "all" && s.rarity !== rarity) return false;
-      if (q) {
+      if (tokens.length) {
         const nicks = (s.nickname ?? "").toLowerCase().split(",").map((n) => n.trim()).filter(Boolean);
-        const inName = s.name.toLowerCase().includes(q);
-        const inNick = nicks.some((n) => n.includes(q));
-        if (!inName && !inNick) return false;
+        const aliases = tab === "exotics" ? (WEAPON_ALIASES[s.weapon_type] ?? []) : [];
+        const hay = [s.name, s.weapon_type, ...nicks, ...aliases].join(" ").toLowerCase();
+        if (!tokens.every((t) => hay.includes(t))) return false;
       }
       return true;
     });
