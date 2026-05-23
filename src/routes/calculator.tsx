@@ -1,0 +1,357 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ArrowLeft, Plus, Trash2, Scale, TrendingUp, TrendingDown } from "lucide-react";
+import type { Skin } from "@/components/SkinCard";
+
+export const Route = createFileRoute("/calculator")({
+  component: CalculatorPage,
+  head: () => ({
+    meta: [
+      { title: "Trade Calculator — kimmy's valuelist" },
+      { name: "description", content: "Simulate a trade and see in real time who wins or loses value." },
+    ],
+  }),
+});
+
+type ValueMode = "value" | "kt_value" | "sv_value";
+type Entry = { id: string; skinId: string; mode: ValueMode };
+type Side = { raw: string; entries: Entry[] };
+
+const emptySide = (): Side => ({ raw: "", entries: [] });
+
+function skinValueFor(skin: Skin, mode: ValueMode): number {
+  const v = skin[mode];
+  if (v != null) return Number(v);
+  // Fallback chain: requested -> base
+  return Number(skin.value ?? 0);
+}
+
+function availableModes(skin: Skin): { mode: ValueMode; label: string; value: number }[] {
+  const out: { mode: ValueMode; label: string; value: number }[] = [
+    { mode: "value", label: "Base", value: Number(skin.value ?? 0) },
+  ];
+  if (skin.kt_value != null) out.push({ mode: "kt_value", label: "KT", value: Number(skin.kt_value) });
+  if (skin.sv_value != null) out.push({ mode: "sv_value", label: "SV", value: Number(skin.sv_value) });
+  return out;
+}
+
+function SkinPicker({
+  skins,
+  onPick,
+}: {
+  skins: Skin[];
+  onPick: (skin: Skin) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm" className="w-full justify-start">
+          <Plus className="mr-2 h-4 w-4" /> Add skin
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[320px] p-0" align="start">
+        <Command>
+          <CommandInput placeholder="Search skin..." />
+          <CommandList>
+            <CommandEmpty>No skins found.</CommandEmpty>
+            <CommandGroup>
+              {skins.map((s) => (
+                <CommandItem
+                  key={s.id}
+                  value={`${s.name} ${s.weapon_type} ${s.nickname ?? ""}`}
+                  onSelect={() => {
+                    onPick(s);
+                    setOpen(false);
+                  }}
+                >
+                  <div className="flex w-full items-center justify-between gap-2">
+                    <span className="truncate">{s.name}</span>
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      {s.weapon_type} · {Number(s.value).toLocaleString()}
+                    </span>
+                  </div>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function SideColumn({
+  label,
+  side,
+  setSide,
+  skinsById,
+  skins,
+  total,
+}: {
+  label: string;
+  side: Side;
+  setSide: (s: Side) => void;
+  skinsById: Map<string, Skin>;
+  skins: Skin[];
+  total: number;
+}) {
+  const update = (patch: Partial<Side>) => setSide({ ...side, ...patch });
+
+  return (
+    <Card
+      className="flex flex-col gap-4 p-4"
+      style={{ background: "var(--gradient-card)", boxShadow: "var(--shadow-card)" }}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-semibold">{label}</h2>
+        </div>
+        <span className="font-mono text-xl font-bold text-primary" style={{ textShadow: "var(--glow-primary)" }}>
+          {total.toLocaleString()}
+        </span>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-xs uppercase tracking-wider text-muted-foreground">
+          Raw value
+        </label>
+        <Input
+          inputMode="decimal"
+          placeholder="0"
+          value={side.raw}
+          onChange={(e) => update({ raw: e.target.value })}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-xs uppercase tracking-wider text-muted-foreground">Skins</label>
+        {side.entries.length === 0 && (
+          <p className="text-xs italic text-muted-foreground">No skins added yet.</p>
+        )}
+        {side.entries.map((entry) => {
+          const skin = skinsById.get(entry.skinId);
+          if (!skin) return null;
+          const modes = availableModes(skin);
+          const lineVal = skinValueFor(skin, entry.mode);
+          return (
+            <div
+              key={entry.id}
+              className="flex items-center gap-2 rounded-md border border-border/60 bg-background/40 p-2"
+            >
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-sm font-medium">{skin.name}</div>
+                <div className="text-xs text-muted-foreground">{skin.weapon_type}</div>
+              </div>
+              <div className="flex gap-1">
+                {modes.map((m) => (
+                  <button
+                    key={m.mode}
+                    type="button"
+                    onClick={() =>
+                      update({
+                        entries: side.entries.map((e) =>
+                          e.id === entry.id ? { ...e, mode: m.mode } : e,
+                        ),
+                      })
+                    }
+                    className={`rounded px-1.5 py-0.5 text-[10px] font-semibold transition ${
+                      entry.mode === m.mode
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-secondary text-muted-foreground hover:text-foreground"
+                    }`}
+                    title={`${m.label}: ${m.value.toLocaleString()}`}
+                  >
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+              <span className="w-20 text-right font-mono text-sm">
+                {lineVal.toLocaleString()}
+              </span>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-7 w-7"
+                onClick={() =>
+                  update({ entries: side.entries.filter((e) => e.id !== entry.id) })
+                }
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          );
+        })}
+        <SkinPicker
+          skins={skins}
+          onPick={(skin) =>
+            update({
+              entries: [
+                ...side.entries,
+                { id: crypto.randomUUID(), skinId: skin.id, mode: "value" },
+              ],
+            })
+          }
+        />
+      </div>
+    </Card>
+  );
+}
+
+function CalculatorPage() {
+  const [you, setYou] = useState<Side>(emptySide());
+  const [them, setThem] = useState<Side>(emptySide());
+
+  const { data: skins = [] } = useQuery({
+    queryKey: ["skins"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("skins").select("*").limit(1000);
+      if (error) throw error;
+      return data as unknown as Skin[];
+    },
+  });
+
+  const skinsById = useMemo(() => {
+    const m = new Map<string, Skin>();
+    skins.forEach((s) => m.set(s.id, s));
+    return m;
+  }, [skins]);
+
+  const sortedSkins = useMemo(
+    () => [...skins].sort((a, b) => a.name.localeCompare(b.name)),
+    [skins],
+  );
+
+  const sideTotal = (side: Side) => {
+    const raw = parseFloat(side.raw) || 0;
+    const skinSum = side.entries.reduce((acc, e) => {
+      const skin = skinsById.get(e.skinId);
+      return acc + (skin ? skinValueFor(skin, e.mode) : 0);
+    }, 0);
+    return raw + skinSum;
+  };
+
+  const youTotal = sideTotal(you);
+  const themTotal = sideTotal(them);
+  const diff = themTotal - youTotal;
+  const winning = diff > 0;
+  const losing = diff < 0;
+
+  return (
+    <div className="min-h-screen">
+      <header className="border-b border-border/60" style={{ background: "var(--gradient-hero)" }}>
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Link to="/">
+                <Button variant="outline" size="sm">
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                </Button>
+              </Link>
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                <Scale className="h-3 w-3" /> Trade Calculator
+              </div>
+            </div>
+            <Badge variant="outline" className="text-xs">You are the left side</Badge>
+          </div>
+          <h1 className="mt-4 font-display text-3xl font-bold tracking-tight sm:text-4xl">
+            Simulate a{" "}
+            <span className="text-primary" style={{ textShadow: "var(--glow-primary)" }}>
+              trade
+            </span>
+          </h1>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <div className="grid gap-4 md:grid-cols-2">
+          <SideColumn
+            label="You"
+            side={you}
+            setSide={setYou}
+            skinsById={skinsById}
+            skins={sortedSkins}
+            total={youTotal}
+          />
+          <SideColumn
+            label="Them"
+            side={them}
+            setSide={setThem}
+            skinsById={skinsById}
+            skins={sortedSkins}
+            total={themTotal}
+          />
+        </div>
+
+        <Card
+          className="mt-4 p-6"
+          style={{ background: "var(--gradient-card)", boxShadow: "var(--shadow-card)" }}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                Your side vs. their side
+              </div>
+              <div className="mt-1 font-mono text-sm text-muted-foreground">
+                {youTotal.toLocaleString()} ↔ {themTotal.toLocaleString()}
+              </div>
+            </div>
+            <div
+              className={`flex items-center gap-2 rounded-md border px-4 py-2 ${
+                winning
+                  ? "border-green-500/50 bg-green-500/10 text-green-300"
+                  : losing
+                    ? "border-red-500/50 bg-red-500/10 text-red-300"
+                    : "border-border bg-secondary text-muted-foreground"
+              }`}
+            >
+              {winning ? (
+                <TrendingUp className="h-5 w-5" />
+              ) : losing ? (
+                <TrendingDown className="h-5 w-5" />
+              ) : (
+                <Scale className="h-5 w-5" />
+              )}
+              <div>
+                <div className="text-xs uppercase tracking-wider">
+                  {winning ? "You win" : losing ? "You lose" : "Even trade"}
+                </div>
+                <div className="font-mono text-2xl font-bold">
+                  {Math.abs(diff).toLocaleString()}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setYou(emptySide());
+                setThem(emptySide());
+              }}
+            >
+              Reset
+            </Button>
+          </div>
+        </Card>
+      </main>
+    </div>
+  );
+}
