@@ -14,16 +14,131 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      skin_value_history: {
+        Row: {
+          changed_at: string
+          id: string
+          skin_id: string
+          value: number
+        }
+        Insert: {
+          changed_at?: string
+          id?: string
+          skin_id: string
+          value: number
+        }
+        Update: {
+          changed_at?: string
+          id?: string
+          skin_id?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skin_value_history_skin_id_fkey"
+            columns: ["skin_id"]
+            isOneToOne: false
+            referencedRelation: "skins"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      skins: {
+        Row: {
+          amount_unboxed: string | null
+          created_at: string
+          demand: number | null
+          id: string
+          image_url: string | null
+          kt_sv_demand: number | null
+          kt_value: number | null
+          name: string
+          nickname: string | null
+          notes: string | null
+          rarity: string
+          season: string
+          section: string
+          sv_value: number | null
+          updated_at: string
+          value: number
+          weapon_type: string
+        }
+        Insert: {
+          amount_unboxed?: string | null
+          created_at?: string
+          demand?: number | null
+          id?: string
+          image_url?: string | null
+          kt_sv_demand?: number | null
+          kt_value?: number | null
+          name: string
+          nickname?: string | null
+          notes?: string | null
+          rarity?: string
+          season?: string
+          section?: string
+          sv_value?: number | null
+          updated_at?: string
+          value?: number
+          weapon_type?: string
+        }
+        Update: {
+          amount_unboxed?: string | null
+          created_at?: string
+          demand?: number | null
+          id?: string
+          image_url?: string | null
+          kt_sv_demand?: number | null
+          kt_value?: number | null
+          name?: string
+          nickname?: string | null
+          notes?: string | null
+          rarity?: string
+          season?: string
+          section?: string
+          sv_value?: number | null
+          updated_at?: string
+          value?: number
+          weapon_type?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "editor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +265,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["editor"],
+    },
   },
 } as const
