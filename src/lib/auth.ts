@@ -10,28 +10,42 @@ export function useAuth() {
 
   useEffect(() => {
     let lastUserId: string | null = null;
-    
-    const hydrate = (u: User | null) => {
+
+    const hydrate = async (u: User | null) => {
       if (u?.id === lastUserId) return;
-lastUserId = u?.id ?? null;
+
+      lastUserId = u?.id ?? null;
+
       setUser(u);
+
       if (!u) {
         setIsEditor(false);
         setUsername(null);
         return;
       }
-      (async () => {
-        const [{ data: roleData }, { data: profile }] = await Promise.all([
-          supabase.from("user_roles").select("role").eq("user_id", u.id)
-            .eq("role", "editor").maybeSingle(),
-          supabase.from("profiles").select("username").eq("user_id", u.id).maybeSingle(),
-        ]);
-        setIsEditor(!!roleData);
-        setUsername(profile?.username ?? null);
-      })();
+
+      const [{ data: roleData }, { data: profile }] = await Promise.all([
+        supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", u.id)
+          .eq("role", "editor")
+          .maybeSingle(),
+
+        supabase
+          .from("profiles")
+          .select("username")
+          .eq("user_id", u.id)
+          .maybeSingle(),
+      ]);
+
+      setIsEditor(!!roleData);
+      setUsername(profile?.username ?? null);
     };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_e, session) => {
       hydrate(session?.user ?? null);
     });
 
