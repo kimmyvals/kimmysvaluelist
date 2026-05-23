@@ -9,14 +9,18 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let lastUserId: string | null = null;
+    
     const hydrate = (u: User | null) => {
+      if (u?.id === lastUserId) return;
+lastUserId = u?.id ?? null;
       setUser(u);
       if (!u) {
         setIsEditor(false);
         setUsername(null);
         return;
       }
-      setTimeout(async () => {
+      (async () => {
         const [{ data: roleData }, { data: profile }] = await Promise.all([
           supabase.from("user_roles").select("role").eq("user_id", u.id)
             .eq("role", "editor").maybeSingle(),
@@ -24,7 +28,7 @@ export function useAuth() {
         ]);
         setIsEditor(!!roleData);
         setUsername(profile?.username ?? null);
-      }, 0);
+      })();
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
