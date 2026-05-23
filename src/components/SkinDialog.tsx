@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { Trash2, History, Plus, Upload, Loader2 } from "lucide-react";
 import { RARITIES, DEMANDS } from "@/lib/skin-options";
+import { friendlyError } from "@/lib/errors";
 import type { Skin } from "./SkinCard";
 
 type Props = {
