@@ -150,9 +150,9 @@
   transition: none !important;
   animation-duration: 0.001s !important;
 }
-[data-reduce-motion="1"] *,
-[data-reduce-motion="1"] *::before,
-[data-reduce-motion="1"] *::after {
+[data-reduce-motion="1"] *:not(.snowflake),
+[data-reduce-motion="1"] *:not(.snowflake)::before,
+[data-reduce-motion="1"] *:not(.snowflake)::after {
   animation-duration: 0.001s !important;
   transition-duration: 0.001s !important;
 }

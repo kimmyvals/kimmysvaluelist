@@ -58,8 +58,14 @@ export function useSettings(): [AppSettings, (next: Partial<AppSettings>) => voi
     setState(read());
     const cb = () => setState(read());
     listeners.add(cb);
+    // Cross-tab sync — pick up changes saved in another tab/window.
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === KEY) setState(read());
+    };
+    window.addEventListener("storage", onStorage);
     return () => {
       listeners.delete(cb);
+      window.removeEventListener("storage", onStorage);
     };
   }, []);
 

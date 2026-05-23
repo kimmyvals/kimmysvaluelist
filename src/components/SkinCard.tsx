@@ -71,8 +71,8 @@ export function SkinCard({ skin, onClick }: { skin: Skin; onClick: () => void })
 
   return (
     <Card
-      onClick={isEditor ? onClick : undefined}
-      className={`group relative overflow-hidden border-2 ${rarityRing[skin.rarity] ?? "border-border/60"} p-0 transition-all hover:-translate-y-1 hover:border-primary/60 ${isEditor ? "cursor-pointer" : ""}`}
+      onClick={onClick}
+      className={`group relative cursor-pointer overflow-hidden border-2 ${rarityRing[skin.rarity] ?? "border-border/60"} p-0 transition-all hover:-translate-y-1 hover:border-primary/60`}
       style={{ background: "var(--gradient-card)", boxShadow: "var(--shadow-card)" }}
     >
       {isEditor && (

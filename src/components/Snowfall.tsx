@@ -21,7 +21,9 @@ export function Snowfall() {
 
   const count = settings.lowPerf ? 15 : 60;
   const glyphs = THEME_GLYPHS[settings.theme];
-  const enabled = !!glyphs && settings.theme !== "none";
+  // Disable effects entirely when user prefers reduced motion (the global
+  // animation-duration override would otherwise make snow loop frantically).
+  const enabled = !!glyphs && settings.theme !== "none" && !settings.reduceMotion;
 
   const flakes = useMemo(
     () => {
