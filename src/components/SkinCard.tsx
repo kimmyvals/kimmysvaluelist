@@ -51,7 +51,6 @@ export function SkinCard({ skin, onClick }: { skin: Skin; onClick: () => void })
   const [imgErr, setImgErr] = useState(false);
   const [settings] = useSettings();
   const { isEditor } = useAuth();
-  void isEditor;
   const qc = useQueryClient();
 
   const del = useMutation({
