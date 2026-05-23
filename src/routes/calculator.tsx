@@ -315,6 +315,7 @@ function CalculatorPage() {
             skinsById={skinsById}
             skins={sortedSkins}
             total={youTotal}
+            showImages={settings.showImages}
           />
           <SideColumn
             label="Them"
@@ -323,6 +324,7 @@ function CalculatorPage() {
             skinsById={skinsById}
             skins={sortedSkins}
             total={themTotal}
+            showImages={settings.showImages}
           />
         </div>
 
