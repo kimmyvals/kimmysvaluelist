@@ -17,6 +17,8 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ArrowLeft, Plus, Trash2, Scale, TrendingUp, TrendingDown } from "lucide-react";
 import type { Skin } from "@/components/SkinCard";
+import { SettingsMenu } from "@/components/SettingsMenu";
+import { useSettings } from "@/lib/settings";
 
 export const Route = createFileRoute("/calculator")({
   component: CalculatorPage,
@@ -53,9 +55,11 @@ function availableModes(skin: Skin): { mode: ValueMode; label: string; value: nu
 function SkinPicker({
   skins,
   onPick,
+  showImages,
 }: {
   skins: Skin[];
   onPick: (skin: Skin) => void;
+  showImages: boolean;
 }) {
   const [open, setOpen] = useState(false);
   return (
@@ -80,8 +84,16 @@ function SkinPicker({
                     setOpen(false);
                   }}
                 >
-                  <div className="flex w-full items-center justify-between gap-2">
-                    <span className="truncate">{s.name}</span>
+                  <div className="flex w-full items-center gap-2">
+                    {showImages && s.image_url && (
+                      <img
+                        src={s.image_url}
+                        alt=""
+                        className="h-8 w-8 shrink-0 rounded object-contain"
+                        loading="lazy"
+                      />
+                    )}
+                    <span className="min-w-0 flex-1 truncate">{s.name}</span>
                     <span className="shrink-0 text-xs text-muted-foreground">
                       {s.weapon_type} · {Number(s.value).toLocaleString()}
                     </span>
@@ -103,6 +115,7 @@ function SideColumn({
   skinsById,
   skins,
   total,
+  showImages,
 }: {
   label: string;
   side: Side;
@@ -110,6 +123,7 @@ function SideColumn({
   skinsById: Map<string, Skin>;
   skins: Skin[];
   total: number;
+  showImages: boolean;
 }) {
   const update = (patch: Partial<Side>) => setSide({ ...side, ...patch });
 
@@ -154,6 +168,14 @@ function SideColumn({
               key={entry.id}
               className="flex items-center gap-2 rounded-md border border-border/60 bg-background/40 p-2"
             >
+              {showImages && skin.image_url && (
+                <img
+                  src={skin.image_url}
+                  alt=""
+                  className="h-10 w-10 shrink-0 rounded object-contain"
+                  loading="lazy"
+                />
+              )}
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-medium">{skin.name}</div>
                 <div className="text-xs text-muted-foreground">{skin.weapon_type}</div>
@@ -199,6 +221,7 @@ function SideColumn({
         })}
         <SkinPicker
           skins={skins}
+          showImages={showImages}
           onPick={(skin) =>
             update({
               entries: [
@@ -216,6 +239,7 @@ function SideColumn({
 function CalculatorPage() {
   const [you, setYou] = useState<Side>(emptySide());
   const [them, setThem] = useState<Side>(emptySide());
+  const [settings] = useSettings();
 
   const { data: skins = [] } = useQuery({
     queryKey: ["skins"],
@@ -267,8 +291,10 @@ function CalculatorPage() {
                 <Scale className="h-3 w-3" /> Trade Calculator
               </div>
             </div>
-            <Badge variant="outline" className="text-xs">You are the left side</Badge>
-          </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-xs">You are the left side</Badge>
+              <SettingsMenu />
+            </div>
           <h1 className="mt-4 font-display text-3xl font-bold tracking-tight sm:text-4xl">
             Simulate a{" "}
             <span className="text-primary" style={{ textShadow: "var(--glow-primary)" }}>
