@@ -11,6 +11,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { Trash2, History, Plus, Upload, Loader2 } from "lucide-react";
 import { RARITIES, DEMANDS } from "@/lib/skin-options";
 import { friendlyError } from "@/lib/errors";
+import { encodeImageUrl } from "@/lib/contact";
 import type { Skin } from "./SkinCard";
 
 type Props = {
@@ -189,7 +190,7 @@ export function SkinDialog({ skin, open, onOpenChange, isNew, weapons, cases, ca
           </div>
           <div className="space-y-2">
             <Label>Nicknames (comma-separated alt names)</Label>
-            <Input disabled={ro} value={form.nickname} placeholder='e.g. "big red, redbeast" — each name is searchable'
+            <Input disabled={ro} value={form.nickname}
               onChange={(e) => setForm({ ...form, nickname: e.target.value })} />
           </div>
           <div className="space-y-2">
@@ -235,7 +236,7 @@ export function SkinDialog({ skin, open, onOpenChange, isNew, weapons, cases, ca
             </div>
             {form.image_url && (
               <img
-                src={form.image_url}
+                src={encodeImageUrl(form.image_url)}
                 alt="preview"
                 className="mt-2 h-32 w-32 rounded-md border border-border/60 object-contain bg-secondary/40"
               />
