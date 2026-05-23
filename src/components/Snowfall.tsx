@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSettings, type Theme } from "@/lib/settings";
 
 const THEME_GLYPHS: Record<Theme, string[]> = {
@@ -11,6 +11,9 @@ const THEME_GLYPHS: Record<Theme, string[]> = {
 
 export function Snowfall() {
   const [settings] = useSettings();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const count = settings.lowPerf ? 15 : 60;
   const glyphs = THEME_GLYPHS[settings.theme] ?? THEME_GLYPHS.winter;
 
@@ -28,6 +31,8 @@ export function Snowfall() {
       }),
     [count, glyphs],
   );
+
+  if (!mounted) return null;
 
   return (
     <div className="snow-layer" aria-hidden>
