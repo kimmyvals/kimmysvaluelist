@@ -76,11 +76,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "kimmy's valuelist" },
-      { name: "description", content: "kimmy's valuelist — community skin value list with editor sign-in." },
+      { name: "description", content: "kimmy's valuelist — community skin value list. contact @wrruf on discord for any info/ changes needed." },
       { property: "og:title", content: "kimmy's valuelist" },
-      { property: "og:description", content: "Community skin value list with editor sign-in." },
+      { property: "og:description", content: "kimmy's valuelist — community skin value list. contact @wrruf on discord for any info/ changes needed." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "kimmy's valuelist" },
+      { name: "twitter:description", content: "kimmy's valuelist — community skin value list. contact @wrruf on discord for any info/ changes needed." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/fIHbIqaPPoY4ruPBnZdASAIWnEM2/social-images/social-1779526701205-kimmy’s_valuelist.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/fIHbIqaPPoY4ruPBnZdASAIWnEM2/social-images/social-1779526701205-kimmy’s_valuelist.webp" },
     ],
     links: [
       {
