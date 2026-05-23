@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { Trash2, History, Plus, Upload, Loader2 } from "lucide-react";
 import { RARITIES, DEMANDS } from "@/lib/skin-options";
+import { friendlyError } from "@/lib/errors";
 import type { Skin } from "./SkinCard";
 
 type Props = {
@@ -112,7 +113,7 @@ export function SkinDialog({ skin, open, onOpenChange, isNew, weapons, cases, ca
       setForm((f) => ({ ...f, image_url: data.publicUrl }));
       toast.success("Image uploaded");
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(friendlyError(e));
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -148,7 +149,7 @@ export function SkinDialog({ skin, open, onOpenChange, isNew, weapons, cases, ca
       toast.success(isNew ? "Skin added" : "Skin updated");
       onOpenChange(false);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(friendlyError(e)),
   });
 
   const del = useMutation({
@@ -161,7 +162,7 @@ export function SkinDialog({ skin, open, onOpenChange, isNew, weapons, cases, ca
       toast.success("Skin deleted");
       onOpenChange(false);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(friendlyError(e)),
   });
 
   const ro = !canEdit;

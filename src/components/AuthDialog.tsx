@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { friendlyError } from "@/lib/errors";
 
 type Mode = "login" | "signup" | "forgot";
 
@@ -47,7 +48,7 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean; onOpenChange
         setMode("login");
       }
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(friendlyError(e));
     } finally {
       setBusy(false);
     }

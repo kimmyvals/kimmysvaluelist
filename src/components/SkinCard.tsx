@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/auth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { friendlyError } from "@/lib/errors";
 
 export type Skin = {
   id: string;
@@ -62,7 +63,7 @@ export function SkinCard({ skin, onClick }: { skin: Skin; onClick: () => void })
       qc.invalidateQueries({ queryKey: ["skins"] });
       toast.success("Skin deleted");
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(friendlyError(e)),
   });
 
   const valueClass = settings.hideValues
