@@ -65,10 +65,14 @@ export function SkinCard({ skin, onClick }: { skin: Skin; onClick: () => void })
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const valueClass = settings.hideValues
+    ? "blur-sm transition hover:blur-none"
+    : "";
+
   return (
     <Card
-      onClick={onClick}
-      className={`group relative cursor-pointer overflow-hidden border-2 ${rarityRing[skin.rarity] ?? "border-border/60"} p-0 transition-all hover:-translate-y-1 hover:border-primary/60`}
+      onClick={isEditor ? onClick : undefined}
+      className={`group relative overflow-hidden border-2 ${rarityRing[skin.rarity] ?? "border-border/60"} p-0 transition-all hover:-translate-y-1 hover:border-primary/60 ${isEditor ? "cursor-pointer" : ""}`}
       style={{ background: "var(--gradient-card)", boxShadow: "var(--shadow-card)" }}
     >
       {isEditor && (
@@ -88,12 +92,13 @@ export function SkinCard({ skin, onClick }: { skin: Skin; onClick: () => void })
           <Trash2 className="h-3.5 w-3.5" />
         </Button>
       )}
-      {settings.showImages && (
+      {settings.showImages && !settings.compact && (
         <div className="relative aspect-square overflow-hidden bg-secondary/40">
           {skin.image_url && !imgErr ? (
             <img
               src={skin.image_url}
               alt={skin.name}
+              loading="lazy"
               onError={() => setImgErr(true)}
               className="h-full w-full object-contain p-4 transition-transform duration-500 group-hover:scale-110"
             />
@@ -111,8 +116,8 @@ export function SkinCard({ skin, onClick }: { skin: Skin; onClick: () => void })
           </div>
         </div>
       )}
-      <div className="space-y-2 p-4">
-        {!settings.showImages && (
+      <div className={`space-y-2 ${settings.compact ? "p-3" : "p-4"}`}>
+        {(!settings.showImages || settings.compact) && (
           <div className="flex items-center justify-between">
             <Badge variant="outline" className="text-xs">{skin.weapon_type}</Badge>
             <Badge variant="outline" className={`${rarityClass[skin.rarity] ?? rarityClass.Common}`}>
@@ -131,7 +136,7 @@ export function SkinCard({ skin, onClick }: { skin: Skin; onClick: () => void })
         <p className="text-xs text-muted-foreground">{skin.season}</p>
         <div className="flex items-baseline justify-between border-t border-border/60 pt-2">
           <span className="text-xs uppercase tracking-wider text-muted-foreground">Value</span>
-          <span className="font-mono text-2xl font-bold text-primary" style={{ textShadow: "var(--glow-primary)" }}>
+          <span className={`font-mono text-2xl font-bold text-primary ${valueClass}`} style={{ textShadow: "var(--glow-primary)" }}>
             {Number(skin.value).toLocaleString()}
           </span>
         </div>

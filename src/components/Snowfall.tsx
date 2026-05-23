@@ -1,12 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSettings, type Theme } from "@/lib/settings";
 
-const THEME_GLYPHS: Record<Theme, string[]> = {
+const THEME_GLYPHS: Partial<Record<Theme, string[]>> = {
   winter: ["❄"],
   spring: ["🌸", "🌷", "🌿"],
   summer: ["☀️", "🌴", "🐚"],
   autumn: ["🍂", "🍁", "🌰"],
   halloween: ["🎃", "👻", "🦇"],
+  valentines: ["💖", "💘", "🌹"],
+  stpatricks: ["☘️", "🍀", "💚"],
+  fourth: ["🎆", "⭐", "🇺🇸"],
+  neon: ["✦", "✧", "◆"],
+  midnight: ["✦", "·", "✧"],
 };
 
 export function Snowfall() {
@@ -15,24 +20,27 @@ export function Snowfall() {
   useEffect(() => setMounted(true), []);
 
   const count = settings.lowPerf ? 15 : 60;
-  const glyphs = THEME_GLYPHS[settings.theme] ?? THEME_GLYPHS.winter;
+  const glyphs = THEME_GLYPHS[settings.theme];
+  const enabled = !!glyphs && settings.theme !== "none";
 
   const flakes = useMemo(
-    () =>
-      Array.from({ length: count }).map((_, i) => {
+    () => {
+      const g = glyphs ?? ["❄"];
+      return Array.from({ length: count }).map((_, i) => {
         const size = Math.random() * 12 + 6;
         const left = Math.random() * 100;
         const duration = Math.random() * 10 + 8;
         const delay = -Math.random() * 20;
         const drift = `${(Math.random() - 0.5) * 200}px`;
         const opacity = Math.random() * 0.6 + 0.4;
-        const glyph = glyphs[i % glyphs.length];
+        const glyph = g[i % g.length];
         return { i, size, left, duration, delay, drift, opacity, glyph };
-      }),
+      });
+    },
     [count, glyphs],
   );
 
-  if (!mounted) return null;
+  if (!mounted || !enabled) return null;
 
   return (
     <div className="snow-layer" aria-hidden>

@@ -5,27 +5,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Plus, Snowflake, LogIn, LogOut, Heart, Ghost, Flag, Biohazard, PartyPopper, Swords, Squircle, Scale } from "lucide-react";
-
-const seasonIcon = (s: string) => {
-  const t = s.toLowerCase();
-  if (t.startsWith("winter")) return Snowflake;
-  if (t.startsWith("valentine")) return Heart;
-  if (t.startsWith("hallows")) return Ghost;
-  if (t.startsWith("infect")) return Biohazard;
-  if (t.startsWith("indep")) return Flag;
-  if (t.startsWith("april")) return PartyPopper;
-  if (t.startsWith("squid")) return Squircle;
-  if (/^(gun|melee|g\d|m\d|k\d)/i.test(s)) return Swords;
-  return Snowflake;
-};
+import { Search, Plus, LogIn, LogOut, Scale } from "lucide-react";
 import { SkinCard, type Skin } from "@/components/SkinCard";
 import { SkinDialog } from "@/components/SkinDialog";
 import { RARITIES } from "@/lib/skin-options";
 import { SettingsMenu } from "@/components/SettingsMenu";
 import { AuthDialog } from "@/components/AuthDialog";
 import { useAuth } from "@/lib/auth";
-import { toast } from "sonner";
+import { useSettings } from "@/lib/settings";
+import { THEME_ICON } from "@/lib/theme-icons";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -50,7 +38,9 @@ function Index() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isNew, setIsNew] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
-  const { user, isEditor } = useAuth();
+  const { user, username, isEditor } = useAuth();
+  const [settings] = useSettings();
+  const ThemeIcon = THEME_ICON[settings.theme];
 
   const { data: skins = [], isLoading } = useQuery({
     queryKey: ["skins"],
@@ -117,13 +107,11 @@ function Index() {
     return out;
   }, [tabSkins, weapon, caseFilter, rarity, search, sort]);
 
-  const openEdit = (s: Skin) => { setSelected(s); setIsNew(false); setDialogOpen(true); };
+  const openEdit = (s: Skin) => {
+    if (!isEditor) return;
+    setSelected(s); setIsNew(false); setDialogOpen(true);
+  };
   const openNew = () => {
-    if (!isEditor) {
-      toast.error("Sign in as an editor to add skins");
-      setAuthOpen(true);
-      return;
-    }
     setSelected(null); setIsNew(true); setDialogOpen(true);
   };
 
@@ -134,7 +122,7 @@ function Index() {
           <div className="flex items-start justify-between gap-4">
             <div className="flex flex-col items-start gap-4">
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                {(() => { const Ic = seasonIcon(caseFilter === "all" ? "" : caseFilter); return <Ic className="h-3 w-3" />; })()} Criminality Value List
+                <ThemeIcon className="h-3 w-3" /> Criminality Value List
               </div>
               <h1 className="font-display text-4xl font-bold tracking-tight sm:text-6xl">
                 kimmy's{" "}
@@ -155,7 +143,8 @@ function Index() {
               <SettingsMenu />
               {user ? (
                 <Button variant="outline" size="sm" onClick={() => supabase.auth.signOut()}>
-                  <LogOut className="mr-2 h-4 w-4" /> Sign out
+                  <LogOut className="mr-2 h-4 w-4" />
+                  {username ? `Sign out (${username})` : "Sign out"}
                 </Button>
               ) : (
                 <Button variant="outline" size="sm" onClick={() => setAuthOpen(true)}>
@@ -224,9 +213,11 @@ function Index() {
             </SelectContent>
           </Select>
 
-          <Button onClick={openNew} className="gap-1">
-            <Plus className="h-4 w-4" /> Add skin
-          </Button>
+          {isEditor && (
+            <Button onClick={openNew} className="gap-1">
+              <Plus className="h-4 w-4" /> Add skin
+            </Button>
+          )}
         </div>
       </section>
 
