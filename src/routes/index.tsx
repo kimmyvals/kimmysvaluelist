@@ -38,7 +38,9 @@ function Index() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isNew, setIsNew] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
-  const { user, isEditor } = useAuth();
+  const { user, username, isEditor } = useAuth();
+  const [settings] = useSettings();
+  const ThemeIcon = THEME_ICON[settings.theme];
 
   const { data: skins = [], isLoading } = useQuery({
     queryKey: ["skins"],
@@ -105,13 +107,11 @@ function Index() {
     return out;
   }, [tabSkins, weapon, caseFilter, rarity, search, sort]);
 
-  const openEdit = (s: Skin) => { setSelected(s); setIsNew(false); setDialogOpen(true); };
+  const openEdit = (s: Skin) => {
+    if (!isEditor) return;
+    setSelected(s); setIsNew(false); setDialogOpen(true);
+  };
   const openNew = () => {
-    if (!isEditor) {
-      toast.error("Sign in as an editor to add skins");
-      setAuthOpen(true);
-      return;
-    }
     setSelected(null); setIsNew(true); setDialogOpen(true);
   };
 
@@ -122,7 +122,7 @@ function Index() {
           <div className="flex items-start justify-between gap-4">
             <div className="flex flex-col items-start gap-4">
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                {(() => { const Ic = seasonIcon(caseFilter === "all" ? "" : caseFilter); return <Ic className="h-3 w-3" />; })()} Criminality Value List
+                <ThemeIcon className="h-3 w-3" /> Criminality Value List
               </div>
               <h1 className="font-display text-4xl font-bold tracking-tight sm:text-6xl">
                 kimmy's{" "}
@@ -143,7 +143,8 @@ function Index() {
               <SettingsMenu />
               {user ? (
                 <Button variant="outline" size="sm" onClick={() => supabase.auth.signOut()}>
-                  <LogOut className="mr-2 h-4 w-4" /> Sign out
+                  <LogOut className="mr-2 h-4 w-4" />
+                  {username ? `Sign out (${username})` : "Sign out"}
                 </Button>
               ) : (
                 <Button variant="outline" size="sm" onClick={() => setAuthOpen(true)}>
