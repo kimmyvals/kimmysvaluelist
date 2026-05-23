@@ -5,14 +5,9 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSettings, type Theme } from "@/lib/settings";
+import { THEME_LABEL } from "@/lib/theme-icons";
 
-const THEMES: { value: Theme; label: string }[] = [
-  { value: "winter", label: "Winter ❄️" },
-  { value: "spring", label: "Spring 🌸" },
-  { value: "summer", label: "Summer ☀️" },
-  { value: "autumn", label: "Autumn 🍂" },
-  { value: "halloween", label: "Halloween 🎃" },
-];
+const THEMES = Object.keys(THEME_LABEL) as Theme[];
 
 export function SettingsMenu() {
   const [settings, update] = useSettings();
@@ -23,7 +18,7 @@ export function SettingsMenu() {
           <SettingsIcon className="h-4 w-4" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-72 space-y-4">
+      <PopoverContent className="max-h-[80vh] w-72 space-y-4 overflow-y-auto">
         <h4 className="font-semibold">Display</h4>
 
         <div className="space-y-2">
@@ -32,37 +27,38 @@ export function SettingsMenu() {
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               {THEMES.map((t) => (
-                <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                <SelectItem key={t} value={t}>{THEME_LABEL[t]}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
-        <div className="flex items-center justify-between">
-          <Label htmlFor="show-images" className="cursor-pointer">Show skin images</Label>
-          <Switch
-            id="show-images"
-            checked={settings.showImages}
-            onCheckedChange={(v) => update({ showImages: v })}
-          />
-        </div>
-        <div className="flex items-center justify-between">
-          <Label htmlFor="show-effects" className="cursor-pointer">Effects</Label>
-          <Switch
-            id="show-effects"
-            checked={settings.showEffects}
-            onCheckedChange={(v) => update({ showEffects: v })}
-          />
-        </div>
-        <div className="flex items-center justify-between">
-          <Label htmlFor="low-perf" className="cursor-pointer">Low-performance mode</Label>
-          <Switch
-            id="low-perf"
-            checked={settings.lowPerf}
-            onCheckedChange={(v) => update({ lowPerf: v })}
-          />
-        </div>
+        <Row id="show-images" label="Show skin images" checked={settings.showImages}
+          onChange={(v) => update({ showImages: v })} />
+        <Row id="show-effects" label="Theme effects" checked={settings.showEffects}
+          onChange={(v) => update({ showEffects: v })} />
+        <Row id="reduce-motion" label="Reduce motion" checked={settings.reduceMotion}
+          onChange={(v) => update({ reduceMotion: v })} />
+        <Row id="low-perf" label="Low-performance mode" checked={settings.lowPerf}
+          onChange={(v) => update({ lowPerf: v })} />
+
+        <h4 className="pt-2 font-semibold">Quality of life</h4>
+        <Row id="compact" label="Compact cards" checked={settings.compact}
+          onChange={(v) => update({ compact: v })} />
+        <Row id="hide-values" label="Hide values (blur)" checked={settings.hideValues}
+          onChange={(v) => update({ hideValues: v })} />
       </PopoverContent>
     </Popover>
+  );
+}
+
+function Row({ id, label, checked, onChange }: {
+  id: string; label: string; checked: boolean; onChange: (v: boolean) => void;
+}) {
+  return (
+    <div className="flex items-center justify-between">
+      <Label htmlFor={id} className="cursor-pointer">{label}</Label>
+      <Switch id={id} checked={checked} onCheckedChange={onChange} />
+    </div>
   );
 }
