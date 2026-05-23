@@ -5,12 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Plus, LogIn, LogOut, Scale } from "lucide-react";
+import { Search, Plus, LogIn, LogOut, Scale, Mail, Inbox } from "lucide-react";
 import { SkinCard, type Skin } from "@/components/SkinCard";
 import { SkinDialog } from "@/components/SkinDialog";
 import { RARITIES } from "@/lib/skin-options";
 import { SettingsMenu } from "@/components/SettingsMenu";
 import { AuthDialog } from "@/components/AuthDialog";
+import { ContactDialog } from "@/components/ContactDialog";
 import { useAuth } from "@/lib/auth";
 import { useSettings } from "@/lib/settings";
 import { THEME_ICON } from "@/lib/theme-icons";
@@ -38,6 +39,7 @@ function Index() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isNew, setIsNew] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
   const { user, username, isEditor } = useAuth();
   const [settings] = useSettings();
   const ThemeIcon = THEME_ICON[settings.theme];
@@ -159,6 +161,18 @@ function Index() {
                   <Scale className="mr-2 h-4 w-4" /> Trade Calc
                 </Button>
               </Link>
+              {user && username === "kimmy" && (
+                <Link to="/inbox">
+                  <Button variant="outline" size="sm">
+                    <Inbox className="mr-2 h-4 w-4" /> Inbox
+                  </Button>
+                </Link>
+              )}
+              {user && (
+                <Button variant="outline" size="sm" onClick={() => setContactOpen(true)}>
+                  <Mail className="mr-2 h-4 w-4" /> Contact
+                </Button>
+              )}
               <SettingsMenu />
               {user ? (
                 <Button variant="outline" size="sm" onClick={() => supabase.auth.signOut()}>
@@ -167,7 +181,7 @@ function Index() {
                 </Button>
               ) : (
                 <Button variant="outline" size="sm" onClick={() => setAuthOpen(true)}>
-                  <LogIn className="mr-2 h-4 w-4" /> Editor sign-in
+                  <LogIn className="mr-2 h-4 w-4" /> Sign in
                 </Button>
               )}
             </div>
@@ -270,6 +284,14 @@ function Index() {
         isNew={isNew} weapons={weapons} cases={cases} canEdit={isEditor} defaultSection={tab}
       />
       <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+      {user && (
+        <ContactDialog
+          open={contactOpen}
+          onOpenChange={setContactOpen}
+          userId={user.id}
+          username={username ?? "user"}
+        />
+      )}
     </div>
   );
 }

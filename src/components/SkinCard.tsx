@@ -9,6 +9,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { friendlyError } from "@/lib/errors";
+import { encodeImageUrl } from "@/lib/contact";
 
 export type Skin = {
   id: string;
@@ -97,7 +98,7 @@ export function SkinCard({ skin, onClick }: { skin: Skin; onClick: () => void })
         <div className="relative aspect-square overflow-hidden bg-secondary/40">
           {skin.image_url && !imgErr ? (
             <img
-              src={skin.image_url}
+              src={encodeImageUrl(skin.image_url)}
               alt={skin.name}
               loading="lazy"
               onError={() => setImgErr(true)}
@@ -117,53 +118,79 @@ export function SkinCard({ skin, onClick }: { skin: Skin; onClick: () => void })
           </div>
         </div>
       )}
-      <div className={`space-y-2 ${settings.compact ? "p-3" : "p-4"}`}>
-        {(!settings.showImages || settings.compact) && (
-          <div className="flex items-center justify-between">
-            <Badge variant="outline" className="text-xs">{skin.weapon_type}</Badge>
-            <Badge variant="outline" className={`${rarityClass[skin.rarity] ?? rarityClass.Common}`}>
-              {skin.rarity}
-            </Badge>
-          </div>
-        )}
-        <div>
-          <h3 className="font-semibold leading-tight">{skin.name || "—"}</h3>
-          {skin.nickname && (
-            <p className="text-xs italic text-accent">
-              aka {skin.nickname.split(",").map((n) => n.trim()).filter(Boolean).map((n) => `"${n}"`).join(", ")}
-            </p>
+      {settings.compact ? (
+        <div className="flex items-center gap-2 p-2">
+          {settings.showImages && skin.image_url && !imgErr && (
+            <img
+              src={encodeImageUrl(skin.image_url)}
+              alt={skin.name}
+              loading="lazy"
+              onError={() => setImgErr(true)}
+              className="h-10 w-10 shrink-0 rounded object-contain bg-secondary/40"
+            />
           )}
-        </div>
-        <p className="text-xs text-muted-foreground">{skin.season}</p>
-        <div className="flex items-baseline justify-between border-t border-border/60 pt-2">
-          <span className="text-xs uppercase tracking-wider text-muted-foreground">Value</span>
-          <span className={`font-mono text-2xl font-bold text-primary ${valueClass}`} style={{ textShadow: "var(--glow-primary)" }}>
-            {Number(skin.value).toLocaleString()}
-          </span>
-        </div>
-        <div className="flex items-baseline justify-between text-xs">
-          <span className="uppercase tracking-wider text-muted-foreground">Demand</span>
-          <span className="font-mono text-foreground">{skin.demand != null ? Number(skin.demand) : "—"}<span className="text-muted-foreground"> / 10</span></span>
-        </div>
-        {(skin.kt_value != null || skin.sv_value != null || skin.kt_sv_demand != null) && (
-          <div className="flex justify-between gap-2 text-xs text-muted-foreground">
-            {skin.season === "Infect '24" ? (
-              <span>SV: <span className="font-mono text-foreground">{skin.sv_value != null ? Number(skin.sv_value).toLocaleString() : "—"}</span></span>
-            ) : (
-              <span>KT: <span className="font-mono text-foreground">{skin.kt_value != null ? Number(skin.kt_value).toLocaleString() : "—"}</span></span>
-            )}
-            <span>KT/SV Dmd: <span className="font-mono text-foreground">{skin.kt_sv_demand != null ? Number(skin.kt_sv_demand).toLocaleString() : "—"}</span></span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center justify-between gap-1">
+              <h3 className="truncate text-sm font-semibold leading-tight">{skin.name || "—"}</h3>
+              <span className={`shrink-0 font-mono text-sm font-bold text-primary ${valueClass}`}>
+                {Number(skin.value).toLocaleString()}
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-2 text-[10px] text-muted-foreground">
+              <span className="truncate">{skin.weapon_type} · {skin.season}</span>
+              <span className="shrink-0">D {skin.demand != null ? Number(skin.demand) : "—"}</span>
+            </div>
           </div>
-        )}
-        {skin.amount_unboxed && (
-          <div className="flex justify-between gap-2 text-xs text-muted-foreground">
-            <span>Approx. Unboxed</span>
-            <span className="font-mono text-foreground">
-              {/^\d+$/.test(skin.amount_unboxed) ? Number(skin.amount_unboxed).toLocaleString() : skin.amount_unboxed}
+        </div>
+      ) : (
+        <div className="space-y-2 p-4">
+          {!settings.showImages && (
+            <div className="flex items-center justify-between">
+              <Badge variant="outline" className="text-xs">{skin.weapon_type}</Badge>
+              <Badge variant="outline" className={`${rarityClass[skin.rarity] ?? rarityClass.Common}`}>
+                {skin.rarity}
+              </Badge>
+            </div>
+          )}
+          <div>
+            <h3 className="font-semibold leading-tight">{skin.name || "—"}</h3>
+            {skin.nickname && (
+              <p className="text-xs italic text-accent">
+                aka {skin.nickname.split(",").map((n) => n.trim()).filter(Boolean).map((n) => `"${n}"`).join(", ")}
+              </p>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground">{skin.season}</p>
+          <div className="flex items-baseline justify-between border-t border-border/60 pt-2">
+            <span className="text-xs uppercase tracking-wider text-muted-foreground">Value</span>
+            <span className={`font-mono text-2xl font-bold text-primary ${valueClass}`} style={{ textShadow: "var(--glow-primary)" }}>
+              {Number(skin.value).toLocaleString()}
             </span>
           </div>
-        )}
-      </div>
+          <div className="flex items-baseline justify-between text-xs">
+            <span className="uppercase tracking-wider text-muted-foreground">Demand</span>
+            <span className="font-mono text-foreground">{skin.demand != null ? Number(skin.demand) : "—"}<span className="text-muted-foreground"> / 10</span></span>
+          </div>
+          {(skin.kt_value != null || skin.sv_value != null || skin.kt_sv_demand != null) && (
+            <div className="flex justify-between gap-2 text-xs text-muted-foreground">
+              {skin.season === "Infect '24" ? (
+                <span>SV: <span className="font-mono text-foreground">{skin.sv_value != null ? Number(skin.sv_value).toLocaleString() : "—"}</span></span>
+              ) : (
+                <span>KT: <span className="font-mono text-foreground">{skin.kt_value != null ? Number(skin.kt_value).toLocaleString() : "—"}</span></span>
+              )}
+              <span>KT/SV Dmd: <span className="font-mono text-foreground">{skin.kt_sv_demand != null ? Number(skin.kt_sv_demand).toLocaleString() : "—"}</span></span>
+            </div>
+          )}
+          {skin.amount_unboxed && (
+            <div className="flex justify-between gap-2 text-xs text-muted-foreground">
+              <span>Approx. Unboxed</span>
+              <span className="font-mono text-foreground">
+                {/^\d+$/.test(skin.amount_unboxed) ? Number(skin.amount_unboxed).toLocaleString() : skin.amount_unboxed}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
     </Card>
   );
 }
