@@ -11,44 +11,7 @@ export function useAuth() {
   useEffect(() => {
     let lastUserId: string | null = null;
 
-const hydrate = async (u: User | null) => {
-  if (u?.id === lastUserId) return;
-
-  lastUserId = u?.id ?? null;
-
-  setUser(u);
-
-  if (!u) {
-    setIsEditor(false);
-    setUsername(null);
-    setLoading(false);
-    return;
-  }
-
-  try {
-    const [{ data: roleData }, { data: profile }] = await Promise.all([
-      supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", u.id)
-        .eq("role", "editor")
-        .maybeSingle(),
-
-      supabase
-        .from("profiles")
-        .select("username")
-        .eq("user_id", u.id)
-        .maybeSingle(),
-    ]);
-
-    setIsEditor(!!roleData);
-    setUsername(profile?.username ?? null);
-  } catch (err) {
-    console.error("Hydrate error:", err);
-  } finally {
-    setLoading(false);
-  }
-};
+    const hydrate = async (u: User | null) => {
       if (u?.id === lastUserId) return;
 
       lastUserId = u?.id ?? null;
@@ -58,38 +21,46 @@ const hydrate = async (u: User | null) => {
       if (!u) {
         setIsEditor(false);
         setUsername(null);
+        setLoading(false);
         return;
       }
 
-      const [{ data: roleData }, { data: profile }] = await Promise.all([
-        supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", u.id)
-          .eq("role", "editor")
-          .maybeSingle(),
+      try {
+        const [{ data: roleData }, { data: profile }] = await Promise.all([
+          supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", u.id)
+            .eq("role", "editor")
+            .maybeSingle(),
 
-        supabase
-          .from("profiles")
-          .select("username")
-          .eq("user_id", u.id)
-          .maybeSingle(),
-      ]);
+          supabase
+            .from("profiles")
+            .select("username")
+            .eq("user_id", u.id)
+            .maybeSingle(),
+        ]);
 
-      setIsEditor(!!roleData);
-      setUsername(profile?.username ?? null);
+        setIsEditor(!!roleData);
+        setUsername(profile?.username ?? null);
+      } catch (err) {
+        console.error("Hydrate error:", err);
+      } finally {
+        setLoading(false);
+      }
     };
 
-  const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
-  hydrate(session?.user ?? null);
-});
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_e, session) => {
+      hydrate(session?.user ?? null);
+    });
 
-supabase.auth.getSession().then(async ({ data }) => {
-  await hydrate(data.session?.user ?? null);
-  setLoading(false);
-});
+    supabase.auth.getSession().then(async ({ data }) => {
+      await hydrate(data.session?.user ?? null);
+    });
 
-return () => subscription.unsubscribe();
+    return () => subscription.unsubscribe();
   }, []);
 
   return { user, username, isEditor, loading };
