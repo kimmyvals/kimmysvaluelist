@@ -22,11 +22,8 @@ const seasonIcon = (s: string) => {
 import { SkinCard, type Skin } from "@/components/SkinCard";
 import { SkinDialog } from "@/components/SkinDialog";
 import { RARITIES } from "@/lib/skin-options";
-import { Toaster } from "@/components/ui/sonner";
-import { Snowfall } from "@/components/Snowfall";
 import { SettingsMenu } from "@/components/SettingsMenu";
 import { AuthDialog } from "@/components/AuthDialog";
-import { useSettings } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 
@@ -53,7 +50,6 @@ function Index() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isNew, setIsNew] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
-  const [settings] = useSettings();
   const { user, isEditor } = useAuth();
 
   const { data: skins = [], isLoading } = useQuery({
@@ -133,9 +129,6 @@ function Index() {
 
   return (
     <div className="min-h-screen">
-      <Toaster theme="dark" />
-      {settings.showEffects && !settings.lowPerf && <Snowfall />}
-
       <header className="border-b border-border/60" style={{ background: "var(--gradient-hero)" }}>
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="flex items-start justify-between gap-4">

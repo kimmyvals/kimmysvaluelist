@@ -7,6 +7,9 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { Toaster } from "@/components/ui/sonner";
+import { Snowfall } from "@/components/Snowfall";
+import { useSettings } from "@/lib/settings";
 
 import appCss from "../styles.css?url";
 
@@ -108,9 +111,12 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const [settings] = useSettings();
 
   return (
     <QueryClientProvider client={queryClient}>
+      <Toaster theme="dark" />
+      {settings.showEffects && !settings.lowPerf && <Snowfall />}
       <Outlet />
     </QueryClientProvider>
   );
