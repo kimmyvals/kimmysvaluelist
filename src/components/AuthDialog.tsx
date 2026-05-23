@@ -48,7 +48,7 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean; onOpenChange
         setMode("login");
       }
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(friendlyError(e));
     } finally {
       setBusy(false);
     }
