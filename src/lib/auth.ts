@@ -12,6 +12,51 @@ export function useAuth() {
     let lastUserId: string | null = null;
 
     const hydrate = async (u: User | null) => {
+  try {
+    if (u?.id === lastUserId) return;
+
+    lastUserId = u?.id ?? null;
+
+    setUser(u);
+
+    if (!u) {
+      setIsEditor(false);
+      setUsername(null);
+      return;
+    }
+
+    const [{ data: roleData, error: roleError }, { data: profile, error: profileError }] =
+      await Promise.all([
+        supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", u.id)
+          .eq("role", "editor")
+          .maybeSingle(),
+
+        supabase
+          .from("profiles")
+          .select("username")
+          .eq("user_id", u.id)
+          .maybeSingle(),
+      ]);
+
+    if (roleError) {
+      console.error("Role error:", roleError);
+    }
+
+    if (profileError) {
+      console.error("Profile error:", profileError);
+    }
+
+    setIsEditor(!!roleData);
+    setUsername(profile?.username ?? null);
+  } catch (err) {
+    console.error("Hydrate crash:", err);
+  } finally {
+    setLoading(false);
+  }
+};
       if (u?.id === lastUserId) return;
 
       lastUserId = u?.id ?? null;
@@ -51,7 +96,6 @@ export function useAuth() {
 
     supabase.auth.getSession().then(({ data }) => {
       hydrate(data.session?.user ?? null);
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
