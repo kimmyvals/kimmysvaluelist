@@ -11,7 +11,7 @@ export type AppSettings = {
 
 const KEY = "kimmy-valuelist-settings";
 const DEFAULTS: AppSettings = {
-  showImages: false,
+  showImages: true,
   showEffects: true,
   lowPerf: false,
   theme: "winter",
