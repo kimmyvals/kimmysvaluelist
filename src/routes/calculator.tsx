@@ -295,7 +295,9 @@ function CalculatorPage() {
               <Badge variant="outline" className="text-xs">You are the left side</Badge>
               <SettingsMenu />
             </div>
+          </div>
           <h1 className="mt-4 font-display text-3xl font-bold tracking-tight sm:text-4xl">
+
             Simulate a{" "}
             <span className="text-primary" style={{ textShadow: "var(--glow-primary)" }}>
               trade
