@@ -5,27 +5,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Plus, Snowflake, LogIn, LogOut, Heart, Ghost, Flag, Biohazard, PartyPopper, Swords, Squircle, Scale } from "lucide-react";
-
-const seasonIcon = (s: string) => {
-  const t = s.toLowerCase();
-  if (t.startsWith("winter")) return Snowflake;
-  if (t.startsWith("valentine")) return Heart;
-  if (t.startsWith("hallows")) return Ghost;
-  if (t.startsWith("infect")) return Biohazard;
-  if (t.startsWith("indep")) return Flag;
-  if (t.startsWith("april")) return PartyPopper;
-  if (t.startsWith("squid")) return Squircle;
-  if (/^(gun|melee|g\d|m\d|k\d)/i.test(s)) return Swords;
-  return Snowflake;
-};
+import { Search, Plus, LogIn, LogOut, Scale } from "lucide-react";
 import { SkinCard, type Skin } from "@/components/SkinCard";
 import { SkinDialog } from "@/components/SkinDialog";
 import { RARITIES } from "@/lib/skin-options";
 import { SettingsMenu } from "@/components/SettingsMenu";
 import { AuthDialog } from "@/components/AuthDialog";
 import { useAuth } from "@/lib/auth";
-import { toast } from "sonner";
+import { useSettings } from "@/lib/settings";
+import { THEME_ICON } from "@/lib/theme-icons";
 
 export const Route = createFileRoute("/")({
   component: Index,
