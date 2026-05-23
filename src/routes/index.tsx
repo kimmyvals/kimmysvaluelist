@@ -213,9 +213,11 @@ function Index() {
             </SelectContent>
           </Select>
 
-          <Button onClick={openNew} className="gap-1">
-            <Plus className="h-4 w-4" /> Add skin
-          </Button>
+          {isEditor && (
+            <Button onClick={openNew} className="gap-1">
+              <Plus className="h-4 w-4" /> Add skin
+            </Button>
+          )}
         </div>
       </section>
 
