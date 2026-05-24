@@ -254,7 +254,7 @@ function Index() {
         </div>
       </section>
 
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-8">
         {isLoading ? (
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
             {Array.from({ length: 12 }).map((_, i) => (
