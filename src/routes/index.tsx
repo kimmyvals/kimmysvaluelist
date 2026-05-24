@@ -256,8 +256,8 @@ function Index() {
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {isLoading ? (
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+            {Array.from({ length: 12 }).map((_, i) => (
               <div key={i} className="aspect-[3/4] animate-pulse rounded-xl bg-card/40" />
             ))}
           </div>
@@ -270,7 +270,7 @@ function Index() {
             <p className="mb-4 text-sm text-muted-foreground">
               Showing <span className="text-foreground font-semibold">{filtered.length}</span> of {tabSkins.length} {tab === "exotics" ? "exotics" : "skins"}
             </p>
-            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
               {filtered.map((s) => (
                 <SkinCard key={s.id} skin={s} onClick={() => openEdit(s)} />
               ))}
