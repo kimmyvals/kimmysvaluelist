@@ -77,7 +77,7 @@ export function SkinCard({ skin, onClick }: { skin: Skin; onClick: () => void })
       className={`group relative cursor-pointer overflow-hidden border-2 ${rarityRing[skin.rarity] ?? "border-border/60"} p-0 transition-all hover:-translate-y-1 hover:border-primary/60`}
       style={{ background: "var(--gradient-card)", boxShadow: "var(--shadow-card)" }}
     >
-      {isEditor && (
+      {true && (
         <Button
           variant="destructive"
           size="icon"
