@@ -63,10 +63,6 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, []);
 
-  return {
-  user,
-  username,
-  isEditor: true,
-  loading: false
+  return { user, username, isEditor, loading };
 };
 }
