@@ -189,7 +189,35 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      value_history: {
+        Row: {
+          changed_at: string | null
+          id: string | null
+          skin_id: string | null
+          value: number | null
+        }
+        Insert: {
+          changed_at?: string | null
+          id?: string | null
+          skin_id?: string | null
+          value?: number | null
+        }
+        Update: {
+          changed_at?: string | null
+          id?: string | null
+          skin_id?: string | null
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skin_value_history_skin_id_fkey"
+            columns: ["skin_id"]
+            isOneToOne: false
+            referencedRelation: "skins"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       has_role: {
