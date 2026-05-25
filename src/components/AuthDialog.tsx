@@ -88,9 +88,13 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean; onOpenChange
         </DialogHeader>
         <div className="space-y-3">
           <div className="space-y-2">
-            <Label>Email</Label>
-            <Input type="email" autoComplete="email" value={email}
-              onChange={(e) => setEmail(e.target.value)} />
+            <Label>{mode === "login" ? "Email or username" : "Email"}</Label>
+            <Input
+              type={mode === "login" ? "text" : "email"}
+              autoComplete={mode === "login" ? "username" : "email"}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
           {mode === "signup" && (
             <div className="space-y-2">
