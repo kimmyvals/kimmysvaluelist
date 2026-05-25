@@ -220,6 +220,7 @@ export type Database = {
       }
     }
     Functions: {
+      email_for_username: { Args: { _username: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

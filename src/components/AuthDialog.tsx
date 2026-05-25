@@ -16,11 +16,21 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean; onOpenChange
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
+  const resolveEmail = async (id: string): Promise<string> => {
+    const v = id.trim();
+    if (v.includes("@")) return v;
+    const { data, error } = await supabase.rpc("email_for_username", { _username: v });
+    if (error) throw error;
+    if (!data) throw new Error("No account with that username.");
+    return data as string;
+  };
+
   const submit = async () => {
     setBusy(true);
     try {
       if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const loginEmail = await resolveEmail(email);
+        const { error } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
         if (error) throw error;
         toast.success("Signed in");
         onOpenChange(false);
@@ -78,9 +88,13 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean; onOpenChange
         </DialogHeader>
         <div className="space-y-3">
           <div className="space-y-2">
-            <Label>Email</Label>
-            <Input type="email" autoComplete="email" value={email}
-              onChange={(e) => setEmail(e.target.value)} />
+            <Label>{mode === "login" ? "Email or username" : "Email"}</Label>
+            <Input
+              type={mode === "login" ? "text" : "email"}
+              autoComplete={mode === "login" ? "username" : "email"}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
           {mode === "signup" && (
             <div className="space-y-2">
