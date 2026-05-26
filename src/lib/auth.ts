@@ -9,13 +9,10 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let lastUserId: string | null = null;
+    let cancelled = false;
 
     const hydrate = async (u: User | null) => {
-      if (u?.id === lastUserId) return;
-
-      lastUserId = u?.id ?? null;
-
+      if (cancelled) return;
       setUser(u);
 
       if (!u) {
@@ -33,7 +30,6 @@ export function useAuth() {
             .eq("user_id", u.id)
             .eq("role", "editor")
             .maybeSingle(),
-
           supabase
             .from("profiles")
             .select("username")
@@ -41,12 +37,13 @@ export function useAuth() {
             .maybeSingle(),
         ]);
 
+        if (cancelled) return;
         setIsEditor(!!roleData);
         setUsername(profile?.username ?? null);
       } catch (err) {
         console.error("Hydrate error:", err);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
@@ -56,11 +53,14 @@ export function useAuth() {
       hydrate(session?.user ?? null);
     });
 
-    supabase.auth.getSession().then(async ({ data }) => {
-      await hydrate(data.session?.user ?? null);
+    supabase.auth.getSession().then(({ data }) => {
+      hydrate(data.session?.user ?? null);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, []);
 
   return { user, username, isEditor, loading };
