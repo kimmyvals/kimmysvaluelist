@@ -6,7 +6,8 @@ import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Mail, MailOpen, Reply, CheckCircle2 } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ArrowLeft, Mail, MailOpen, Reply, CheckCircle2, Users, Shield, ShieldOff } from "lucide-react";
 import { toast } from "sonner";
 import { friendlyError } from "@/lib/errors";
 
