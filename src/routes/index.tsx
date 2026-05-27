@@ -140,7 +140,7 @@ function Index() {
     <div className="min-h-screen">
       <header className="border-b border-border/60" style={{ background: "var(--gradient-hero)" }}>
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row">
             <div className="flex flex-col items-start gap-4">
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
                 <ThemeIcon className="h-3 w-3" /> Criminality Value List
@@ -155,7 +155,7 @@ function Index() {
                 Created as a tool to help all. Contact @wrruf on Discord to ask for changes.
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto sm:justify-end">
               <Link to="/calculator">
                 <Button variant="outline" size="sm">
                   <Scale className="mr-2 h-4 w-4" /> Trade Calc
