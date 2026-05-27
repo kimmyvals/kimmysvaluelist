@@ -155,7 +155,7 @@ function Index() {
                 Created as a tool to help all. Contact @wrruf on Discord to ask for changes.
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto sm:justify-end">
               <Link to="/calculator">
                 <Button variant="outline" size="sm">
                   <Scale className="mr-2 h-4 w-4" /> Trade Calc
