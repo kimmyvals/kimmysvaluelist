@@ -6,12 +6,13 @@ import { useSettings, type Theme } from "@/lib/settings";
 // background rotates roughly every 7 days without any backend.
 const SCENERY: Record<Theme, string[]> = {
   winter: [
+  winter: [
+    "photo-1551582045-6ec9c11d8697", // snowy mountain peak
     "photo-1483921020237-2ff51e8e4b22", // snowy mountain range
-    "photo-1418985991508-e47386d96a71", // pine forest in snow
-    "photo-1457269449834-928af64c684d", // cabin and snow
+    "photo-1454942901704-3c44c11b2ad1", // snow-capped alps
+    "photo-1542601906990-b4d3fb778b09", // snowy summit
     "photo-1486162928267-e6274cb3106f", // alpine valley
   ],
-  spring: [
     "photo-1441974231531-c6227db76b6e", // sunlit forest
     "photo-1490750967868-88aa4486c946", // wildflower field
     "photo-1500382017468-9049fed747ef", // green rolling hills
