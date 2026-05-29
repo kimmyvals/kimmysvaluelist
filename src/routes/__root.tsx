@@ -126,5 +126,6 @@ function RootComponent() {
       {settings.showEffects && !settings.lowPerf && <Snowfall />}
       <Outlet />
     </QueryClientProvider>
-
+  );
 }
+
