@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSettings, type Theme } from "@/lib/settings";
 import { THEME_LABEL } from "@/lib/theme-icons";
@@ -11,6 +12,7 @@ const THEMES = Object.keys(THEME_LABEL) as Theme[];
 
 export function SettingsMenu() {
   const [settings, update] = useSettings();
+  const intensity = settings.effectIntensity ?? 1;
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -37,10 +39,26 @@ export function SettingsMenu() {
           onChange={(v) => update({ showImages: v })} />
         <Row id="show-effects" label="Theme effects" checked={settings.showEffects}
           onChange={(v) => update({ showEffects: v })} />
+        <Row id="scenery-bg" label="Scenic background (weekly)" checked={settings.sceneryBackground}
+          onChange={(v) => update({ sceneryBackground: v })} />
         <Row id="reduce-motion" label="Reduce motion" checked={settings.reduceMotion}
           onChange={(v) => update({ reduceMotion: v })} />
         <Row id="low-perf" label="Low-performance mode" checked={settings.lowPerf}
           onChange={(v) => update({ lowPerf: v })} />
+
+        <div className="space-y-2 pt-1">
+          <div className="flex items-center justify-between">
+            <Label>Effect amount</Label>
+            <span className="text-xs text-muted-foreground">{Math.round(intensity * 100)}%</span>
+          </div>
+          <Slider
+            value={[intensity]}
+            min={0}
+            max={2}
+            step={0.25}
+            onValueChange={([v]) => update({ effectIntensity: v })}
+          />
+        </div>
 
         <h4 className="pt-2 font-semibold">Quality of life</h4>
         <Row id="compact" label="Compact cards" checked={settings.compact}

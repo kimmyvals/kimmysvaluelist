@@ -21,6 +21,8 @@ export type AppSettings = {
   compact: boolean;
   hideValues: boolean;
   reduceMotion: boolean;
+  sceneryBackground: boolean;
+  effectIntensity: number; // 0 .. 2, 1 = default
 };
 
 const KEY = "kimmy-valuelist-settings";
@@ -32,6 +34,8 @@ const DEFAULTS: AppSettings = {
   compact: false,
   hideValues: false,
   reduceMotion: false,
+  sceneryBackground: false,
+  effectIntensity: 1,
 };
 
 function read(): AppSettings {
@@ -58,7 +62,6 @@ export function useSettings(): [AppSettings, (next: Partial<AppSettings>) => voi
     setState(read());
     const cb = () => setState(read());
     listeners.add(cb);
-    // Cross-tab sync — pick up changes saved in another tab/window.
     const onStorage = (e: StorageEvent) => {
       if (e.key === KEY) setState(read());
     };
@@ -74,8 +77,9 @@ export function useSettings(): [AppSettings, (next: Partial<AppSettings>) => voi
       document.documentElement.dataset.theme = state.theme;
       document.documentElement.dataset.lowPerf = state.lowPerf ? "1" : "0";
       document.documentElement.dataset.reduceMotion = state.reduceMotion ? "1" : "0";
+      document.documentElement.dataset.scenery = state.sceneryBackground ? "1" : "0";
     }
-  }, [state.theme, state.lowPerf, state.reduceMotion]);
+  }, [state.theme, state.lowPerf, state.reduceMotion, state.sceneryBackground]);
 
   const update = (next: Partial<AppSettings>) => {
     const merged = { ...read(), ...next };

@@ -9,7 +9,9 @@ import {
 } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
 import { Snowfall } from "@/components/Snowfall";
+import { SceneryBackground } from "@/components/SceneryBackground";
 import { useSettings } from "@/lib/settings";
+
 
 import appCss from "../styles.css?url";
 
@@ -120,8 +122,10 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <Toaster theme="dark" />
+      <SceneryBackground />
       {settings.showEffects && !settings.lowPerf && <Snowfall />}
       <Outlet />
     </QueryClientProvider>
   );
 }
+

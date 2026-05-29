@@ -19,11 +19,13 @@ export function Snowfall() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const count = settings.lowPerf ? 15 : 60;
+  const intensity = Math.max(0, Math.min(2, settings.effectIntensity ?? 1));
+  const base = settings.lowPerf ? 15 : 60;
+  const count = Math.round(base * intensity);
   const glyphs = THEME_GLYPHS[settings.theme];
-  // Disable effects entirely when user prefers reduced motion (the global
-  // animation-duration override would otherwise make snow loop frantically).
-  const enabled = !!glyphs && settings.theme !== "none" && !settings.reduceMotion;
+  const enabled =
+    !!glyphs && settings.theme !== "none" && !settings.reduceMotion && count > 0;
+
 
   const flakes = useMemo(
     () => {
