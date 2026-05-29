@@ -306,3 +306,51 @@
   0% { transform: translate3d(0, -10vh, 0) rotate(0deg); }
   100% { transform: translate3d(var(--drift, 20px), 110vh, 0) rotate(360deg); }
 }
+
+/* Scenic background — fixed full-bleed photo behind the app. */
+.scenery-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  animation: scenery-fade-in 0.8s ease-out;
+}
+.scenery-bg__image {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.05);
+  filter: saturate(1.05);
+}
+.scenery-bg__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--background) 55%, transparent) 0%,
+                            color-mix(in oklab, var(--background) 78%, transparent) 100%);
+}
+@keyframes scenery-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* When scenery is active, let the themed bg show through and strengthen
+   the frosted glass on the header + sticky filter bar. */
+[data-scenery="1"] body {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+[data-scenery="1"] header[style*="--gradient-hero"],
+[data-scenery="1"] header {
+  background-color: color-mix(in oklab, var(--background) 35%, transparent) !important;
+  backdrop-filter: blur(18px) saturate(1.1);
+  -webkit-backdrop-filter: blur(18px) saturate(1.1);
+}
+[data-scenery="1"] section.sticky {
+  background-color: color-mix(in oklab, var(--background) 45%, transparent) !important;
+  backdrop-filter: blur(18px) saturate(1.1);
+  -webkit-backdrop-filter: blur(18px) saturate(1.1);
+}
+
