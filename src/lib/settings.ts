@@ -77,7 +77,8 @@ export function useSettings(): [AppSettings, (next: Partial<AppSettings>) => voi
       document.documentElement.dataset.theme = state.theme;
       document.documentElement.dataset.lowPerf = state.lowPerf ? "1" : "0";
       document.documentElement.dataset.reduceMotion = state.reduceMotion ? "1" : "0";
-      document.documentElement.dataset.scenery = state.sceneryBackground ? "1" : "0";
+      document.documentElement.dataset.scenery =
+        state.sceneryBackground && !state.lowPerf && state.theme !== "none" ? "1" : "0";
     }
   }, [state.theme, state.lowPerf, state.reduceMotion, state.sceneryBackground]);
 
