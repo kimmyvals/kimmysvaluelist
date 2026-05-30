@@ -6,6 +6,7 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [isEditor, setIsEditor] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,19 +18,18 @@ export function useAuth() {
 
       if (!u) {
         setIsEditor(false);
+        setIsAdmin(false);
         setUsername(null);
         setLoading(false);
         return;
       }
 
       try {
-        const [{ data: roleData }, { data: profile }] = await Promise.all([
+        const [{ data: roles }, { data: profile }] = await Promise.all([
           supabase
             .from("user_roles")
             .select("role")
-            .eq("user_id", u.id)
-            .eq("role", "editor")
-            .maybeSingle(),
+            .eq("user_id", u.id),
           supabase
             .from("profiles")
             .select("username")
@@ -38,7 +38,9 @@ export function useAuth() {
         ]);
 
         if (cancelled) return;
-        setIsEditor(!!roleData);
+        const roleSet = new Set((roles ?? []).map((r) => r.role));
+        setIsAdmin(roleSet.has("admin"));
+        setIsEditor(roleSet.has("editor") || roleSet.has("admin"));
         setUsername(profile?.username ?? null);
       } catch (err) {
         console.error("Hydrate error:", err);

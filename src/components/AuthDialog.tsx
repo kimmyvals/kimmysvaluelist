@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { friendlyError } from "@/lib/errors";
+import { loginWithIdentifier } from "@/lib/auth.functions";
 
 type Mode = "login" | "signup" | "forgot";
 
@@ -16,21 +17,17 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean; onOpenChange
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const resolveEmail = async (id: string): Promise<string> => {
-    const v = id.trim();
-    if (v.includes("@")) return v;
-    const { data, error } = await supabase.rpc("email_for_username", { _username: v });
-    if (error) throw error;
-    if (!data) throw new Error("No account with that username.");
-    return data as string;
-  };
-
   const submit = async () => {
     setBusy(true);
     try {
       if (mode === "login") {
-        const loginEmail = await resolveEmail(email);
-        const { error } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
+        const tokens = await loginWithIdentifier({
+          data: { identifier: email, password },
+        });
+        const { error } = await supabase.auth.setSession({
+          access_token: tokens.access_token,
+          refresh_token: tokens.refresh_token,
+        });
         if (error) throw error;
         toast.success("Signed in");
         onOpenChange(false);
