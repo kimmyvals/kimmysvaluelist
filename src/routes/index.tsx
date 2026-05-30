@@ -40,7 +40,7 @@ function Index() {
   const [isNew, setIsNew] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
-  const { user, username, isEditor } = useAuth();
+  const { user, username, isEditor, isAdmin } = useAuth();
   const [settings] = useSettings();
   const ThemeIcon = THEME_ICON[settings.theme];
 
@@ -161,7 +161,7 @@ function Index() {
                   <Scale className="mr-2 h-4 w-4" /> Trade Calc
                 </Button>
               </Link>
-              {user && username === "kimmy" && (
+              {user && isAdmin && (
                 <Link to="/inbox">
                   <Button variant="outline" size="sm">
                     <Inbox className="mr-2 h-4 w-4" /> Inbox
