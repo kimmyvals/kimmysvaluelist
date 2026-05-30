@@ -65,5 +65,5 @@ export function useAuth() {
     };
   }, []);
 
-  return { user, username, isEditor, loading };
+  return { user, username, isEditor, isAdmin, loading };
 }

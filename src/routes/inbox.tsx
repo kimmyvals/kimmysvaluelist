@@ -31,21 +31,21 @@ export const Route = createFileRoute("/inbox")({
 });
 
 function InboxPage() {
-  const { user, username, isEditor, loading } = useAuth();
+  const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [selected, setSelected] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
 
   useEffect(() => {
-    if (!loading && (!user || username !== "kimmy")) {
+    if (!loading && (!user || !isAdmin)) {
       navigate({ to: "/" });
     }
-  }, [user, username, loading, navigate]);
+  }, [user, isAdmin, loading, navigate]);
 
   const messages = useQuery({
     queryKey: ["contact_messages"],
-    enabled: !!user && username === "kimmy",
+    enabled: !!user && isAdmin,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("contact_messages")
@@ -68,7 +68,7 @@ function InboxPage() {
     onError: (e: Error) => toast.error(friendlyError(e)),
   });
 
-  if (loading || !user || username !== "kimmy") {
+  if (loading || !user || !isAdmin) {
     return <div className="p-10 text-center text-muted-foreground">Loading…</div>;
   }
 
