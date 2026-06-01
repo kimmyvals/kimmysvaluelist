@@ -4,13 +4,14 @@ import { useSettings, type Theme } from "@/lib/settings";
 // Curated Unsplash photos — verified to match their theme visually.
 // Multiple per theme; one is picked deterministically per ISO week so the
 // background rotates roughly every 7 days without any backend.
+// Each ID is a hand-picked Unsplash photo whose subject matches the theme.
+// Format: https://images.unsplash.com/photo-<id>
 const SCENERY: Record<Theme, string[]> = {
   winter: [
-    "photo-1551582045-6ec9c11d8697", // snowy mountain peak
-    "photo-1483921020237-2ff51e8e4b22", // snowy mountain range
-    "photo-1454942901704-3c44c11b2ad1", // snow-capped alps
-    "photo-1542601906990-b4d3fb778b09", // snowy summit
-    "photo-1486162928267-e6274cb3106f", // alpine valley with snow
+    "photo-1418985991508-e47386d96a71", // snow-covered alpine peaks
+    "photo-1483728642387-6c3bdd6c93e5", // snowy mountain panorama
+    "photo-1457269449834-928af64c684d", // snowy forest mountainside
+    "photo-1486901796908-b9a4d31a3eb6", // snowy peak with pine forest
   ],
   spring: [
     "photo-1464822759023-fed622ff2c3b", // cherry blossoms in bloom
@@ -31,34 +32,34 @@ const SCENERY: Record<Theme, string[]> = {
     "photo-1444492417251-9c84a5fa18e0", // fallen autumn leaves
   ],
   halloween: [
-    "photo-1509557965875-b88c97052f0e", // pumpkin patch at dusk
-    "photo-1506252374453-ef5237291d83", // misty dark forest
-    "photo-1477414348463-c0eb7f1359b6", // foggy night mood
-    "photo-1572883454114-1cf0031ede2a", // carved jack-o-lanterns glowing
+    "photo-1572883454114-1cf0031ede2a", // jack-o-lanterns row at night
+    "photo-1508361727343-ca787442dcd7", // misty graveyard with bare trees
+    "photo-1506243783593-c8a443ee9f59", // pumpkins on porch
+    "photo-1635776062764-e025521e3df3", // spooky haunted forest
   ],
   valentines: [
-    "photo-1518621736915-f3b1c41bfd00", // deep red roses
-    "photo-1502635385003-ee1e6a1a742d", // soft pink florals
+    "photo-1518621736915-f3b1c41bfd00", // deep red roses bouquet
+    "photo-1487530811176-3780de880c2d", // pink heart confetti / candy
     "photo-1518895949257-7621c3c786d7", // pastel pink sky
-    "photo-1519681393784-d120267933ba", // romantic starry mountain scene
+    "photo-1582719471384-894fbb16e074", // red roses close-up
   ],
   stpatricks: [
-    "photo-1500382017468-9049fed747ef", // lush rolling green hills
-    "photo-1469474968028-56623f02e42e", // vibrant emerald valley
-    "photo-1535083783855-76ae62b2914e", // rocky Irish coastline with green cliffs
-    "photo-1501785888041-af3ef285b470", // green mountain and lake
+    "photo-1469474968028-56623f02e42e", // emerald Irish cliffs
+    "photo-1500382017468-9049fed747ef", // rolling green hills
+    "photo-1535083783855-76ae62b2914e", // green coastal valley
+    "photo-1564914615625-4daf48d05f29", // shamrock-green moss field
   ],
   fourth: [
-    "photo-1530541930197-ff16ac917b0e", // colorful fireworks burst
-    "photo-1467810563316-b5476525c0f9", // fireworks over city skyline
-    "photo-1492684223066-81342ee5ff30", // crowd celebrating with sparklers
-    "photo-1532012197267-da84d127e765", // patriotic red sky sunset
+    "photo-1498931299472-f7a63a5a1cfa", // fireworks burst against night sky
+    "photo-1530268729831-4b0b9e170218", // fireworks over water with reflection
+    "photo-1467810563316-b5476525c0f9", // multicolor fireworks finale
+    "photo-1561622539-300ddedce0c1", // american flag with fireworks
   ],
   neon: [
-    "photo-1518709268805-4e9042af2176", // vibrant neon sign
-    "photo-1493514789931-586cb221d7a7", // neon-lit city street at night
-    "photo-1542204165-65bf26472b9b", // cyberpunk neon city district
-    "photo-1492551557933-34265f7af79e", // bright neon lights arcade
+    "photo-1542359649-31e03cd4d909", // neon-soaked Tokyo street
+    "photo-1493514789931-586cb221d7a7", // glowing pink/blue neon alley
+    "photo-1519608487953-e999c86e7455", // cyberpunk neon skyline
+    "photo-1516280440614-37939bbacd81", // vivid neon arcade signage
   ],
   midnight: [
     "photo-1419242902214-272b3f66ee7a", // dense starry night sky

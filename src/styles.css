@@ -390,3 +390,30 @@ button:not([disabled]):active,
   -webkit-backdrop-filter: blur(18px) saturate(1.1);
 }
 
+
+/* Stable scrollbar gutter — prevents page shake when Radix opens
+   popovers/selects/dialogs (which lock body scroll and would otherwise
+   compensate with padding-right, causing a horizontal jump). */
+html {
+  scrollbar-gutter: stable;
+}
+/* Neutralize Radix's scroll-lock padding compensation; scrollbar-gutter
+   already keeps width stable, so the extra padding is what shakes the page. */
+body[data-scroll-locked] {
+  padding-right: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Subtle, snappy dropdown / popover entrance — disabled in low-perf mode */
+[data-radix-popper-content-wrapper] > * {
+  transform-origin: var(--radix-popper-transform-origin);
+  animation: dropdown-in 140ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-low-perf="1"] [data-radix-popper-content-wrapper] > *,
+[data-reduce-motion="1"] [data-radix-popper-content-wrapper] > * {
+  animation: none !important;
+}
+@keyframes dropdown-in {
+  from { opacity: 0; transform: scale(0.96) translateY(-2px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
