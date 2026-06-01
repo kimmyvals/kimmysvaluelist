@@ -9,7 +9,6 @@ import {
 } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
 import { Snowfall } from "@/components/Snowfall";
-import { SceneryBackground } from "@/components/SceneryBackground";
 import { useSettings } from "@/lib/settings";
 
 
@@ -105,7 +104,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
   // Pre-paint script: apply persisted theme/perf flags to <html> before React
   // hydrates so the page doesn't flash the default winter palette (and never
   // "snaps back to spring" between releases).
-  const bootstrap = `(function(){try{var s=localStorage.getItem('kimmy-valuelist-settings');if(!s)return;var p=JSON.parse(s);var d=document.documentElement;if(p.theme)d.dataset.theme=p.theme;if(p.lowPerf)d.dataset.lowPerf='1';if(p.reduceMotion)d.dataset.reduceMotion='1';if(p.sceneryBackground&&!p.lowPerf&&p.theme&&p.theme!=='none')d.dataset.scenery='1';}catch(e){}})();`;
+  const bootstrap = `(function(){try{var s=localStorage.getItem('kimmy-valuelist-settings');if(!s)return;var p=JSON.parse(s);var d=document.documentElement;if(p.theme)d.dataset.theme=p.theme;if(p.lowPerf)d.dataset.lowPerf='1';if(p.reduceMotion)d.dataset.reduceMotion='1';}catch(e){}})();`;
   return (
     <html lang="en">
       <head>
@@ -127,7 +126,6 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <Toaster theme="dark" />
-      <SceneryBackground />
       {settings.showEffects && !settings.lowPerf && <Snowfall />}
       <Outlet />
     </QueryClientProvider>

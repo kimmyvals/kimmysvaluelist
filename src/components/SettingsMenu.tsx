@@ -50,8 +50,6 @@ export function SettingsMenu() {
         <Row id="show-effects" label="Theme effects" checked={settings.showEffects}
           onChange={(v) => update({ showEffects: v })} />
 
-        <Row id="scenery-bg" label="Scenic background (weekly)" checked={settings.sceneryBackground}
-          onChange={(v) => update({ sceneryBackground: v })} />
         <Row id="reduce-motion" label="Reduce motion" checked={settings.reduceMotion}
           onChange={(v) => update({ reduceMotion: v })} />
         <Row id="low-perf" label="Low-performance mode" checked={settings.lowPerf}
