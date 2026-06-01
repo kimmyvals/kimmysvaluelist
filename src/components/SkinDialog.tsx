@@ -9,7 +9,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { Trash2, History, Plus, Upload, Loader2 } from "lucide-react";
-import { RARITIES, DEMANDS } from "@/lib/skin-options";
+import { RARITIES } from "@/lib/skin-options";
 import { friendlyError } from "@/lib/errors";
 import { encodeImageUrl } from "@/lib/contact";
 import type { Skin } from "./SkinCard";
@@ -102,9 +102,34 @@ export function SkinDialog({ skin, open, onOpenChange, isNew, weapons, cases, ca
   });
 
   const handleUpload = async (file: File) => {
+    // Server-side MIME validation — blocks SVG-with-JS and other non-image types
+    // even when the client-side accept="image/*" filter is bypassed.
+    const ALLOWED_TYPES = new Set([
+      "image/jpeg", "image/png", "image/webp", "image/gif", "image/avif",
+    ]);
+    if (!ALLOWED_TYPES.has(file.type)) {
+      toast.error("Only JPEG, PNG, WebP, GIF, and AVIF images are allowed.");
+      return;
+    }
+    // Validate magic bytes so a renamed .svg can't sneak through
+    const header = await file.slice(0, 16).arrayBuffer();
+    const bytes = new Uint8Array(header);
+    const isPng  = bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47;
+    const isJpeg = bytes[0] === 0xff && bytes[1] === 0xd8;
+    const isWebp = bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50;
+    const isGif  = bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46;
+    const isAvif = bytes[4] === 0x66 && bytes[5] === 0x74 && bytes[6] === 0x79 && bytes[7] === 0x70;
+    if (!isPng && !isJpeg && !isWebp && !isGif && !isAvif) {
+      toast.error("File content doesn't match an allowed image format.");
+      return;
+    }
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop() || "png";
+      const SAFE_EXT: Record<string, string> = {
+        "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp",
+        "image/gif": "gif", "image/avif": "avif",
+      };
+      const ext = SAFE_EXT[file.type] ?? "png";
       const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
       const { error: upErr } = await supabase.storage
         .from("skin-images")
@@ -201,8 +226,7 @@ export function SkinDialog({ skin, open, onOpenChange, isNew, weapons, cases, ca
           <div className="space-y-2">
             <Label>Demand (0–10)</Label>
             <Input disabled={ro} type="number" step="0.5" min="0" max="10"
-              value={form.demand}
-              placeholder="e.g. 6.5"
+              value={form.demand} placeholder="e.g. 6.5"
               onChange={(e) => setForm({ ...form, demand: e.target.value })} />
           </div>
 
@@ -226,7 +250,7 @@ export function SkinDialog({ skin, open, onOpenChange, isNew, weapons, cases, ca
               <input
                 ref={fileRef}
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
                 className="hidden"
                 onChange={(e) => {
                   const f = e.target.files?.[0];
