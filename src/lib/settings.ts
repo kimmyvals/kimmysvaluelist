@@ -21,7 +21,6 @@ export type AppSettings = {
   compact: boolean;
   hideValues: boolean;
   reduceMotion: boolean;
-  sceneryBackground: boolean;
   effectIntensity: number; // 0 .. 2, 1 = default
 };
 
@@ -34,7 +33,6 @@ const DEFAULTS: AppSettings = {
   compact: false,
   hideValues: false,
   reduceMotion: false,
-  sceneryBackground: false,
   effectIntensity: 1,
 };
 
@@ -92,10 +90,8 @@ export function useSettings(): [AppSettings, (next: Partial<AppSettings>) => voi
       document.documentElement.dataset.theme = state.theme;
       document.documentElement.dataset.lowPerf = state.lowPerf ? "1" : "0";
       document.documentElement.dataset.reduceMotion = state.reduceMotion ? "1" : "0";
-      document.documentElement.dataset.scenery =
-        state.sceneryBackground && !state.lowPerf && state.theme !== "none" ? "1" : "0";
     }
-  }, [state.theme, state.lowPerf, state.reduceMotion, state.sceneryBackground]);
+  }, [state.theme, state.lowPerf, state.reduceMotion]);
 
   const update = (next: Partial<AppSettings>) => {
     const current = read();
