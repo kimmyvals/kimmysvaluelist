@@ -13,6 +13,7 @@ const THEMES = Object.keys(THEME_LABEL) as Theme[];
 export function SettingsMenu() {
   const [settings, update] = useSettings();
   const intensity = settings.effectIntensity ?? 1;
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -25,7 +26,14 @@ export function SettingsMenu() {
 
         <div className="space-y-2">
           <Label>Seasonal theme</Label>
-          <Select value={settings.theme} onValueChange={(v) => update({ theme: v as Theme })}>
+          {/* Guard onValueChange so double-click can't fire two rapid updates
+              that race and wipe the animation state */}
+          <Select
+            value={settings.theme}
+            onValueChange={(v) => {
+              if (v !== settings.theme) update({ theme: v as Theme });
+            }}
+          >
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               {THEMES.map((t) => (
@@ -37,8 +45,11 @@ export function SettingsMenu() {
 
         <Row id="show-images" label="Show skin images" checked={settings.showImages}
           onChange={(v) => update({ showImages: v })} />
+
+        {/* Auto-synced with the intensity slider below */}
         <Row id="show-effects" label="Theme effects" checked={settings.showEffects}
           onChange={(v) => update({ showEffects: v })} />
+
         <Row id="scenery-bg" label="Scenic background (weekly)" checked={settings.sceneryBackground}
           onChange={(v) => update({ sceneryBackground: v })} />
         <Row id="reduce-motion" label="Reduce motion" checked={settings.reduceMotion}
@@ -58,6 +69,11 @@ export function SettingsMenu() {
             step={0.25}
             onValueChange={([v]) => update({ effectIntensity: v })}
           />
+          {intensity === 0 && (
+            <p className="text-[11px] text-muted-foreground leading-snug">
+              Effects are off. Drag the slider to bring them back.
+            </p>
+          )}
         </div>
 
         <h4 className="pt-2 font-semibold">Quality of life</h4>
