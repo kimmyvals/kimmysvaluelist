@@ -67,14 +67,13 @@ export function SkinCard({ skin, onClick }: { skin: Skin; onClick: () => void })
     onError: (e: Error) => toast.error(friendlyError(e)),
   });
 
-  const valueClass = settings.hideValues
-    ? "blur-sm transition hover:blur-none"
-    : "";
+  const valueClass = settings.hideValues ? "blur-sm transition hover:blur-none" : "";
 
   return (
     <Card
       onClick={onClick}
-      className={`group relative cursor-pointer overflow-hidden border-2 ${rarityRing[skin.rarity] ?? "border-border/60"} p-0 transition-all hover:-translate-y-1 hover:border-primary/60`}
+      // skin-card class picks up the hover-lift CSS defined in styles.css
+      className={`skin-card group relative cursor-pointer overflow-hidden border-2 ${rarityRing[skin.rarity] ?? "border-border/60"} p-0 transition-all hover:-translate-y-1 hover:border-primary/60`}
       style={{ background: "var(--gradient-card)", boxShadow: "var(--shadow-card)" }}
     >
       {isEditor && (
