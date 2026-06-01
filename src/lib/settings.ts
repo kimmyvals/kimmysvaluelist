@@ -38,14 +38,29 @@ const DEFAULTS: AppSettings = {
   effectIntensity: 1,
 };
 
+// Guard against stale/removed theme keys surviving across deploys
+const VALID_THEMES = new Set<Theme>([
+  "winter","spring","summer","autumn","halloween",
+  "valentines","stpatricks","fourth","neon","midnight","none",
+]);
+
 function read(): AppSettings {
   if (typeof window === "undefined") return DEFAULTS;
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return DEFAULTS;
     const parsed = JSON.parse(raw);
+    // Migrate legacy showSnow → showEffects
     if (parsed.showSnow != null && parsed.showEffects == null) {
       parsed.showEffects = parsed.showSnow;
+    }
+    // If a deploy removed/renamed a theme, fall back gracefully instead of resetting to spring
+    if (parsed.theme && !VALID_THEMES.has(parsed.theme as Theme)) {
+      parsed.theme = DEFAULTS.theme;
+    }
+    // Keep effectIntensity and showEffects in sync on read
+    if (parsed.effectIntensity === 0) {
+      parsed.showEffects = false;
     }
     return { ...DEFAULTS, ...parsed };
   } catch {
@@ -83,7 +98,19 @@ export function useSettings(): [AppSettings, (next: Partial<AppSettings>) => voi
   }, [state.theme, state.lowPerf, state.reduceMotion, state.sceneryBackground]);
 
   const update = (next: Partial<AppSettings>) => {
-    const merged = { ...read(), ...next };
+    const current = read();
+    let merged = { ...current, ...next };
+
+    // Two-way sync between effectIntensity and showEffects
+    if ("effectIntensity" in next) {
+      if (next.effectIntensity === 0) merged.showEffects = false;
+      if ((next.effectIntensity ?? 0) > 0 && !current.showEffects) merged.showEffects = true;
+    }
+    if ("showEffects" in next) {
+      if (!next.showEffects) merged.effectIntensity = 0;
+      if (next.showEffects && merged.effectIntensity === 0) merged.effectIntensity = 1;
+    }
+
     localStorage.setItem(KEY, JSON.stringify(merged));
     listeners.forEach((l) => l());
   };
