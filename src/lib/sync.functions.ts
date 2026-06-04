@@ -1,5 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { TablesInsert } from "@/integrations/supabase/types";
+
+type SkinUpsert = TablesInsert<"skins">;
 
 const SHEET_ID = "1CFBiPHjCaTlHRsJVecHhEb1_rSW6-VaAtsbV2zQP43g";
 // Try several candidate names per tab so renames don't break sync silently.
