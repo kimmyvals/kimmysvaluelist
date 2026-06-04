@@ -27,7 +27,32 @@ export type Skin = {
   kt_sv_demand: number | null;
   amount_unboxed: string | null;
   section?: string | null;
+  trend?: string | null;
+  kt_trend?: string | null;
 };
+
+function TrendBadge({ value }: { value?: string | null }) {
+  if (!value) return null;
+  const v = value.trim();
+  if (!v) return null;
+  const up = /^(up|\+|↑|▲|rising|rise)/i.test(v);
+  const down = /^(down|-|↓|▼|falling|fall)/i.test(v);
+  const stable = /^(stable|=|—|–|flat)/i.test(v);
+  const color = up
+    ? "text-emerald-300 border-emerald-400/40 bg-emerald-400/10"
+    : down
+      ? "text-rose-300 border-rose-400/40 bg-rose-400/10"
+      : stable
+        ? "text-zinc-300 border-zinc-400/30 bg-zinc-400/10"
+        : "text-sky-200 border-sky-400/30 bg-sky-400/10";
+  const arrow = up ? "▲" : down ? "▼" : stable ? "■" : "•";
+  return (
+    <span className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-medium ${color}`}>
+      <span>{arrow}</span>
+      <span className="font-mono">{v.replace(/^[↑↓▲▼+\-=]+\s*/, "")}</span>
+    </span>
+  );
+}
 
 const rarityClass: Record<string, string> = {
   Limited: "bg-yellow-400/20 text-yellow-200 border-yellow-400/50",
