@@ -198,13 +198,16 @@ export function SkinCard({ skin, onClick }: { skin: Skin; onClick: () => void })
             <span className="uppercase tracking-wider text-muted-foreground">Demand</span>
             <span className="font-mono text-foreground">{skin.demand != null ? Number(skin.demand) : "—"}<span className="text-muted-foreground"> / 10</span></span>
           </div>
-          {(skin.kt_value != null || skin.sv_value != null || skin.kt_sv_demand != null) && (
-            <div className="flex justify-between gap-2 text-xs text-muted-foreground">
-              {skin.season === "Infect '24" ? (
-                <span>SV: <span className="font-mono text-foreground">{skin.sv_value != null ? Number(skin.sv_value).toLocaleString() : "—"}</span></span>
-              ) : (
-                <span>KT: <span className="font-mono text-foreground">{skin.kt_value != null ? Number(skin.kt_value).toLocaleString() : "—"}</span></span>
-              )}
+          {(skin.kt_value != null || skin.sv_value != null || skin.kt_sv_demand != null || skin.kt_trend) && (
+            <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1">
+                {skin.season === "Infect '24" ? (
+                  <span>SV: <span className="font-mono text-foreground">{skin.sv_value != null ? Number(skin.sv_value).toLocaleString() : "—"}</span></span>
+                ) : (
+                  <span>KT: <span className="font-mono text-foreground">{skin.kt_value != null ? Number(skin.kt_value).toLocaleString() : "—"}</span></span>
+                )}
+                <TrendBadge value={skin.kt_trend} />
+              </div>
               <span>KT/SV Dmd: <span className="font-mono text-foreground">{skin.kt_sv_demand != null ? Number(skin.kt_sv_demand).toLocaleString() : "—"}</span></span>
             </div>
           )}
