@@ -187,9 +187,12 @@ export function SkinCard({ skin, onClick }: { skin: Skin; onClick: () => void })
           <p className="text-xs text-muted-foreground">{skin.season}</p>
           <div className="flex items-baseline justify-between border-t border-border/60 pt-2">
             <span className="text-xs uppercase tracking-wider text-muted-foreground">Value</span>
-            <span className={`font-mono text-2xl font-bold text-primary ${valueClass}`} style={{ textShadow: "var(--glow-primary)" }}>
-              {Number(skin.value).toLocaleString()}
-            </span>
+            <div className="flex items-baseline gap-2">
+              <TrendBadge value={skin.trend} />
+              <span className={`font-mono text-2xl font-bold text-primary ${valueClass}`} style={{ textShadow: "var(--glow-primary)" }}>
+                {Number(skin.value).toLocaleString()}
+              </span>
+            </div>
           </div>
           <div className="flex items-baseline justify-between text-xs">
             <span className="uppercase tracking-wider text-muted-foreground">Demand</span>
