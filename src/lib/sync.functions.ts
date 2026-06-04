@@ -90,7 +90,7 @@ function buildRecords(rows: string[][], section: Section) {
   const hi = findHeaderRow(rows);
   if (hi >= rows.length) return [];
   const get = makeGetter(rows[hi]);
-  const records: Record<string, unknown>[] = [];
+  const records: SkinUpsert[] = [];
   for (let r = hi + 1; r < rows.length; r++) {
     const row = rows[r];
     if (!row || row.every((c) => !c || !String(c).trim())) continue;
