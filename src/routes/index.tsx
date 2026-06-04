@@ -47,6 +47,7 @@ function Index() {
   const [settings] = useSettings();
   const ThemeIcon = THEME_ICON[settings.theme];
 
+  const qc = useQueryClient();
   const { data: skins = [], isLoading } = useQuery({
     queryKey: ["skins"],
     queryFn: async () => {
@@ -55,6 +56,30 @@ function Index() {
       return data as unknown as Skin[];
     },
   });
+
+  const sync = useServerFn(syncFromGoogleSheet);
+  const syncMut = useMutation({
+    mutationFn: () => sync(),
+    onSuccess: (res) => {
+      qc.invalidateQueries({ queryKey: ["skins"] });
+      if (res.errors.length) {
+        toast.error(`Sheet sync had issues: ${res.errors.join("; ")}`);
+      }
+    },
+    onError: () => {
+      // Silent — sheet may not be public yet. Editors can use the refresh button.
+    },
+  });
+
+  // Auto-sync once per page load (background, non-blocking).
+  const autoRanRef = useRef(false);
+  useEffect(() => {
+    if (autoRanRef.current) return;
+    autoRanRef.current = true;
+    syncMut.mutate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   const tabSkins = useMemo(
     () => skins.filter((s) => (s.section ?? "main") === tab),
