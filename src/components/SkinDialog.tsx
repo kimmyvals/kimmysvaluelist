@@ -192,6 +192,11 @@ export function SkinDialog({ skin, open, onOpenChange, isNew, weapons, cases, ca
   });
 
   const ro = !canEdit;
+  // Fields managed by the Google Sheet sync. Editors can still tweak them in
+  // an emergency, but the next sync (page load / Sync button) will overwrite.
+  // We surface this with a banner + an inline hint instead of hard-locking,
+  // so editors don't get blocked if the sheet is down.
+  
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -205,6 +210,11 @@ export function SkinDialog({ skin, open, onOpenChange, isNew, weapons, cases, ca
         {ro && (
           <div className="rounded-md border border-primary/40 bg-primary/10 px-3 py-2 text-sm">
             🔒 Sign in as an editor to make changes.
+          </div>
+        )}
+        {canEdit && !isNew && (
+          <div className="rounded-md border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-xs text-amber-200">
+            Value, KT/SV, demand, trend and copies-unboxed are linked to the Google Sheet. Edits there flow in automatically; edits here will be overwritten on the next sync.
           </div>
         )}
 

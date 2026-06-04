@@ -114,6 +114,7 @@ export type Database = {
           id: string
           image_url: string | null
           kt_sv_demand: number | null
+          kt_trend: string | null
           kt_value: number | null
           name: string
           nickname: string | null
@@ -122,6 +123,7 @@ export type Database = {
           season: string
           section: string
           sv_value: number | null
+          trend: string | null
           updated_at: string
           value: number
           weapon_type: string
@@ -133,6 +135,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           kt_sv_demand?: number | null
+          kt_trend?: string | null
           kt_value?: number | null
           name: string
           nickname?: string | null
@@ -141,6 +144,7 @@ export type Database = {
           season?: string
           section?: string
           sv_value?: number | null
+          trend?: string | null
           updated_at?: string
           value?: number
           weapon_type?: string
@@ -152,6 +156,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           kt_sv_demand?: number | null
+          kt_trend?: string | null
           kt_value?: number | null
           name?: string
           nickname?: string | null
@@ -160,6 +165,7 @@ export type Database = {
           season?: string
           section?: string
           sv_value?: number | null
+          trend?: string | null
           updated_at?: string
           value?: number
           weapon_type?: string

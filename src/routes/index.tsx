@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Plus, LogIn, LogOut, Scale, Mail, Inbox } from "lucide-react";
+import { Search, Plus, LogIn, LogOut, Scale, Mail, Inbox, RefreshCw } from "lucide-react";
 import { SkinCard, type Skin } from "@/components/SkinCard";
 import { SkinDialog } from "@/components/SkinDialog";
 import { RARITIES } from "@/lib/skin-options";
@@ -15,6 +16,8 @@ import { ContactDialog } from "@/components/ContactDialog";
 import { useAuth } from "@/lib/auth";
 import { useSettings } from "@/lib/settings";
 import { THEME_ICON } from "@/lib/theme-icons";
+import { syncFromGoogleSheet } from "@/lib/sync.functions";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -44,6 +47,7 @@ function Index() {
   const [settings] = useSettings();
   const ThemeIcon = THEME_ICON[settings.theme];
 
+  const qc = useQueryClient();
   const { data: skins = [], isLoading } = useQuery({
     queryKey: ["skins"],
     queryFn: async () => {
@@ -52,6 +56,30 @@ function Index() {
       return data as unknown as Skin[];
     },
   });
+
+  const sync = useServerFn(syncFromGoogleSheet);
+  const syncMut = useMutation({
+    mutationFn: () => sync(),
+    onSuccess: (res) => {
+      qc.invalidateQueries({ queryKey: ["skins"] });
+      if (res.errors.length) {
+        toast.error(`Sheet sync had issues: ${res.errors.join("; ")}`);
+      }
+    },
+    onError: () => {
+      // Silent — sheet may not be public yet. Editors can use the refresh button.
+    },
+  });
+
+  // Auto-sync once per page load (background, non-blocking).
+  const autoRanRef = useRef(false);
+  useEffect(() => {
+    if (autoRanRef.current) return;
+    autoRanRef.current = true;
+    syncMut.mutate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   const tabSkins = useMemo(
     () => skins.filter((s) => (s.section ?? "main") === tab),
@@ -171,6 +199,18 @@ function Index() {
               {user && (
                 <Button variant="outline" size="sm" onClick={() => setContactOpen(true)}>
                   <Mail className="mr-2 h-4 w-4" /> Contact
+                </Button>
+              )}
+              {isEditor && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => syncMut.mutate()}
+                  disabled={syncMut.isPending}
+                  title="Pull latest values from Google Sheet"
+                >
+                  <RefreshCw className={`mr-2 h-4 w-4 ${syncMut.isPending ? "animate-spin" : ""}`} />
+                  Sync sheet
                 </Button>
               )}
               <SettingsMenu />
