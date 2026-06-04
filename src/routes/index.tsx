@@ -201,6 +201,18 @@ function Index() {
                   <Mail className="mr-2 h-4 w-4" /> Contact
                 </Button>
               )}
+              {isEditor && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => syncMut.mutate()}
+                  disabled={syncMut.isPending}
+                  title="Pull latest values from Google Sheet"
+                >
+                  <RefreshCw className={`mr-2 h-4 w-4 ${syncMut.isPending ? "animate-spin" : ""}`} />
+                  Sync sheet
+                </Button>
+              )}
               <SettingsMenu />
               {user ? (
                 <Button variant="outline" size="sm" onClick={() => supabase.auth.signOut()}>
