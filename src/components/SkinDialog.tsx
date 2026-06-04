@@ -196,7 +196,7 @@ export function SkinDialog({ skin, open, onOpenChange, isNew, weapons, cases, ca
   // an emergency, but the next sync (page load / Sync button) will overwrite.
   // We surface this with a banner + an inline hint instead of hard-locking,
   // so editors don't get blocked if the sheet is down.
-  const syncedHint = "Synced from Google Sheet — sheet changes win on next sync.";
+  
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
