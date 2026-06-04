@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Plus, LogIn, LogOut, Scale, Mail, Inbox } from "lucide-react";
+import { Search, Plus, LogIn, LogOut, Scale, Mail, Inbox, RefreshCw } from "lucide-react";
 import { SkinCard, type Skin } from "@/components/SkinCard";
 import { SkinDialog } from "@/components/SkinDialog";
 import { RARITIES } from "@/lib/skin-options";
@@ -15,6 +16,8 @@ import { ContactDialog } from "@/components/ContactDialog";
 import { useAuth } from "@/lib/auth";
 import { useSettings } from "@/lib/settings";
 import { THEME_ICON } from "@/lib/theme-icons";
+import { syncFromGoogleSheet } from "@/lib/sync.functions";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   component: Index,
