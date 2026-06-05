@@ -16,7 +16,7 @@ import { ContactDialog } from "@/components/ContactDialog";
 import { useAuth } from "@/lib/auth";
 import { useSettings } from "@/lib/settings";
 import { THEME_ICON } from "@/lib/theme-icons";
-import { syncFromGoogleSheet } from "@/lib/sync.functions";
+import { syncFromGoogleSheet, getSyncStatus } from "@/lib/sync.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
@@ -58,27 +58,52 @@ function Index() {
   });
 
   const sync = useServerFn(syncFromGoogleSheet);
+  const statusFn = useServerFn(getSyncStatus);
+  const { data: syncStatus } = useQuery({
+    queryKey: ["sync-status"],
+    queryFn: () => statusFn(),
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+  });
   const syncMut = useMutation({
     mutationFn: () => sync(),
     onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: ["skins"] });
-      if (res.errors.length) {
+      qc.invalidateQueries({ queryKey: ["sync-status"] });
+      if (res.skipped) {
+        toast.message("Sheet already synced recently — skipped.");
+      } else if (res.errors.length) {
         toast.error(`Sheet sync had issues: ${res.errors.join("; ")}`);
+      } else {
+        toast.success(`Synced ${res.main + res.exotics} skins from sheet.`);
       }
     },
     onError: () => {
-      // Silent — sheet may not be public yet. Editors can use the refresh button.
+      toast.error("Sync failed. Please try again.");
     },
   });
 
-  // Auto-sync once per page load (background, non-blocking).
+  // Auto-sync once per page load — editors only (avoids unauth writes & load).
   const autoRanRef = useRef(false);
   useEffect(() => {
     if (autoRanRef.current) return;
+    if (!isEditor) return;
     autoRanRef.current = true;
     syncMut.mutate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isEditor]);
+
+  const lastSyncedLabel = useMemo(() => {
+    const ts = syncStatus?.lastSyncedAt;
+    if (!ts) return "Never synced";
+    const diff = Date.now() - new Date(ts).getTime();
+    const mins = Math.floor(diff / 60_000);
+    if (mins < 1) return "Synced just now";
+    if (mins < 60) return `Synced ${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `Synced ${hrs}h ago`;
+    return `Synced ${Math.floor(hrs / 24)}d ago`;
+  }, [syncStatus?.lastSyncedAt]);
 
 
   const tabSkins = useMemo(
@@ -332,6 +357,14 @@ function Index() {
           username={username ?? "user"}
         />
       )}
+
+      <div
+        className="fixed bottom-3 right-3 z-30 flex items-center gap-1.5 rounded-full border border-border/60 bg-background/80 px-3 py-1.5 text-xs text-muted-foreground shadow-sm backdrop-blur"
+        title={syncStatus?.lastSyncedAt ? new Date(syncStatus.lastSyncedAt).toLocaleString() : "Sheet has not been synced yet"}
+      >
+        <RefreshCw className={`h-3 w-3 ${syncMut.isPending ? "animate-spin" : ""}`} />
+        <span>{syncMut.isPending ? "Syncing…" : lastSyncedLabel}</span>
+      </div>
     </div>
   );
 }

@@ -1,8 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { TablesInsert } from "@/integrations/supabase/types";
 
 type SkinUpsert = TablesInsert<"skins">;
+
+// Throttle: skip if last sync was within this window.
+const THROTTLE_MS = 5 * 60 * 1000;
 
 const SHEET_ID = "1CFBiPHjCaTlHRsJVecHhEb1_rSW6-VaAtsbV2zQP43g";
 // Try several candidate names per tab so renames don't break sync silently.
@@ -124,35 +128,93 @@ export type SyncResult = {
   exotics: number;
   errors: string[];
   at: string;
+  skipped?: boolean;
 };
 
-export const syncFromGoogleSheet = createServerFn({ method: "POST" }).handler(async (): Promise<SyncResult> => {
-  const out: SyncResult = { main: 0, exotics: 0, errors: [], at: new Date().toISOString() };
-
-  const tasks: Array<[string, Section, string[]]> = [
-    ["main", "main", MAIN_TAB_CANDIDATES],
-    ["exotics", "exotics", EXOTIC_TAB_CANDIDATES],
-  ];
-
-  for (const [label, section, candidates] of tasks) {
-    try {
-      const rows = await fetchTab(candidates);
-      const records = buildRecords(rows, section);
-      if (!records.length) {
-        out.errors.push(`${label}: no rows parsed`);
-        continue;
-      }
-      // upsert by (weapon_type, name) unique index — only the listed columns
-      // are touched, so image_url / nickname / notes are preserved.
-      const { error } = await supabaseAdmin
-        .from("skins")
-        .upsert(records, { onConflict: "weapon_type,name" });
-      if (error) { out.errors.push(`${label}: ${error.message}`); continue; }
-      if (section === "main") out.main = records.length;
-      else out.exotics = records.length;
-    } catch (e) {
-      out.errors.push(`${label}: ${e instanceof Error ? e.message : String(e)}`);
-    }
-  }
-  return out;
+// Public read of last sync time — safe for anon visitors, no writes.
+export const getSyncStatus = createServerFn({ method: "GET" }).handler(async () => {
+  const { data } = await supabaseAdmin
+    .from("sync_state")
+    .select("last_synced_at, main_count, exotics_count, last_error")
+    .eq("id", "sheet")
+    .maybeSingle();
+  return {
+    lastSyncedAt: data?.last_synced_at ?? null,
+    mainCount: data?.main_count ?? 0,
+    exoticsCount: data?.exotics_count ?? 0,
+    lastError: data?.last_error ?? null,
+  };
 });
+
+// Editor-only sync. Throttled to avoid hammering the DB.
+export const syncFromGoogleSheet = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<SyncResult> => {
+    const { supabase, userId } = context;
+
+    // Gate: editor or admin only.
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+    const roleSet = new Set((roles ?? []).map((r) => r.role));
+    if (!roleSet.has("editor") && !roleSet.has("admin")) {
+      throw new Error("Forbidden");
+    }
+
+    const out: SyncResult = { main: 0, exotics: 0, errors: [], at: new Date().toISOString() };
+
+    // Throttle by reading last sync time.
+    const { data: state } = await supabaseAdmin
+      .from("sync_state")
+      .select("last_synced_at")
+      .eq("id", "sheet")
+      .maybeSingle();
+    if (state?.last_synced_at) {
+      const age = Date.now() - new Date(state.last_synced_at).getTime();
+      if (age < THROTTLE_MS) {
+        return { ...out, at: state.last_synced_at, skipped: true };
+      }
+    }
+
+    const tasks: Array<[string, Section, string[]]> = [
+      ["main", "main", MAIN_TAB_CANDIDATES],
+      ["exotics", "exotics", EXOTIC_TAB_CANDIDATES],
+    ];
+
+    for (const [label, section, candidates] of tasks) {
+      try {
+        const rows = await fetchTab(candidates);
+        const records = buildRecords(rows, section);
+        if (!records.length) {
+          out.errors.push(`${label}: no rows parsed`);
+          continue;
+        }
+        const { error } = await supabaseAdmin
+          .from("skins")
+          .upsert(records, { onConflict: "weapon_type,name" });
+        if (error) {
+          console.error(`[sync] ${label} upsert error:`, error.message);
+          out.errors.push(`${label}: sync failed`);
+          continue;
+        }
+        if (section === "main") out.main = records.length;
+        else out.exotics = records.length;
+      } catch (e) {
+        console.error(`[sync] ${label} error:`, e);
+        out.errors.push(`${label}: sync failed`);
+      }
+    }
+
+    // Persist sync state so all visitors can see when it last ran.
+    await supabaseAdmin.from("sync_state").upsert({
+      id: "sheet",
+      last_synced_at: out.at,
+      main_count: out.main,
+      exotics_count: out.exotics,
+      last_error: out.errors.length ? out.errors.join("; ").slice(0, 500) : null,
+    });
+
+    return out;
+  });
+

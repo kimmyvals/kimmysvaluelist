@@ -31,7 +31,10 @@ export const sendContactMessage = createServerFn({ method: "POST" })
       })
       .select()
       .single();
-    if (error) throw new Error(error.message);
+    if (error) {
+      console.error("[contact] insert error:", error.message);
+      throw new Error("Failed to send message. Please try again.");
+    }
 
     // Fire-and-forget Discord notification using a server-only secret.
     const webhook = process.env.DISCORD_WEBHOOK_URL;
