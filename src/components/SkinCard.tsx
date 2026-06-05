@@ -31,25 +31,38 @@ export type Skin = {
   kt_trend?: string | null;
 };
 
+type TrendKind = "rising" | "lowering" | "unstable" | "stable" | "projected" | "hype" | "other";
+
+function classifyTrend(v: string): { kind: TrendKind; label: string; arrow: string } {
+  const s = v.trim().toLowerCase().replace(/[.\s]+$/, "");
+  if (/^(rsng|rising|rise|up|\+|↑|▲)/.test(s)) return { kind: "rising", label: "Rising", arrow: "▲" };
+  if (/^(lwrg|lowering|lower|down|falling|fall|-|↓|▼)/.test(s)) return { kind: "lowering", label: "Lowering", arrow: "▼" };
+  if (/^(unst|unstable)/.test(s)) return { kind: "unstable", label: "Unstable", arrow: "↯" };
+  if (/^(st\b|stable|=|—|–|flat)/.test(s)) return { kind: "stable", label: "Stable", arrow: "■" };
+  if (/^(proj|projected|projecting)/.test(s)) return { kind: "projected", label: "Projected", arrow: "◆" };
+  if (/^(hype|hyped)/.test(s)) return { kind: "hype", label: "Hype", arrow: "★" };
+  return { kind: "other", label: v.trim(), arrow: "•" };
+}
+
+const trendStyles: Record<TrendKind, string> = {
+  rising:    "text-white border-transparent bg-[#a02424]",
+  lowering:  "text-white border-transparent bg-[#2c6fd1]",
+  unstable:  "text-white border-transparent bg-[#b56b86]",
+  stable:    "text-white border-transparent bg-[#4a4a4a]",
+  projected: "text-white border-transparent bg-[#c9961a]",
+  hype:      "text-white border-transparent bg-[#5a8a3a]",
+  other:     "text-sky-200 border-sky-400/30 bg-sky-400/10",
+};
+
 function TrendBadge({ value }: { value?: string | null }) {
   if (!value) return null;
   const v = value.trim();
   if (!v) return null;
-  const up = /^(up|\+|↑|▲|rising|rise)/i.test(v);
-  const down = /^(down|-|↓|▼|falling|fall)/i.test(v);
-  const stable = /^(stable|=|—|–|flat)/i.test(v);
-  const color = up
-    ? "text-emerald-300 border-emerald-400/40 bg-emerald-400/10"
-    : down
-      ? "text-rose-300 border-rose-400/40 bg-rose-400/10"
-      : stable
-        ? "text-zinc-300 border-zinc-400/30 bg-zinc-400/10"
-        : "text-sky-200 border-sky-400/30 bg-sky-400/10";
-  const arrow = up ? "▲" : down ? "▼" : stable ? "■" : "•";
+  const { kind, label, arrow } = classifyTrend(v);
   return (
-    <span className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-medium ${color}`}>
+    <span className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-semibold ${trendStyles[kind]}`}>
       <span>{arrow}</span>
-      <span className="font-mono">{v.replace(/^[↑↓▲▼+\-=]+\s*/, "")}</span>
+      <span>{label}</span>
     </span>
   );
 }
