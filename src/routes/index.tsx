@@ -16,7 +16,7 @@ import { ContactDialog } from "@/components/ContactDialog";
 import { useAuth } from "@/lib/auth";
 import { useSettings } from "@/lib/settings";
 import { THEME_ICON } from "@/lib/theme-icons";
-import { syncFromGoogleSheet } from "@/lib/sync.functions";
+import { syncFromGoogleSheet, getSyncStatus } from "@/lib/sync.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
