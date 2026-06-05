@@ -172,6 +172,30 @@ export type Database = {
         }
         Relationships: []
       }
+      sync_state: {
+        Row: {
+          exotics_count: number | null
+          id: string
+          last_error: string | null
+          last_synced_at: string | null
+          main_count: number | null
+        }
+        Insert: {
+          exotics_count?: number | null
+          id: string
+          last_error?: string | null
+          last_synced_at?: string | null
+          main_count?: number | null
+        }
+        Update: {
+          exotics_count?: number | null
+          id?: string
+          last_error?: string | null
+          last_synced_at?: string | null
+          main_count?: number | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
