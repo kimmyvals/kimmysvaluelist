@@ -1,8 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { TablesInsert } from "@/integrations/supabase/types";
 
 type SkinUpsert = TablesInsert<"skins">;
+
+// Throttle: skip if last sync was within this window.
+const THROTTLE_MS = 5 * 60 * 1000;
 
 const SHEET_ID = "1CFBiPHjCaTlHRsJVecHhEb1_rSW6-VaAtsbV2zQP43g";
 // Try several candidate names per tab so renames don't break sync silently.
