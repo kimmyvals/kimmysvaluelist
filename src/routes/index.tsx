@@ -357,6 +357,14 @@ function Index() {
           username={username ?? "user"}
         />
       )}
+
+      <div
+        className="fixed bottom-3 right-3 z-30 flex items-center gap-1.5 rounded-full border border-border/60 bg-background/80 px-3 py-1.5 text-xs text-muted-foreground shadow-sm backdrop-blur"
+        title={syncStatus?.lastSyncedAt ? new Date(syncStatus.lastSyncedAt).toLocaleString() : "Sheet has not been synced yet"}
+      >
+        <RefreshCw className={`h-3 w-3 ${syncMut.isPending ? "animate-spin" : ""}`} />
+        <span>{syncMut.isPending ? "Syncing…" : lastSyncedLabel}</span>
+      </div>
     </div>
   );
 }
