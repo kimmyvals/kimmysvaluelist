@@ -201,7 +201,10 @@ function MarketGame() {
   const [marketFilter, setMarketFilter] = useState<"trending" | "cheap" | "expensive">("trending");
   const marketList = useMemo(() => {
     if (!state) return [];
-    const arr = skins.map((s) => ({ skin: s as GameSkin, mkt: state.market[s.id] ?? { id: s.id, mult: 1, trend: 0 } }));
+    const arr = skins.map((s) => {
+      const gs: GameSkin = { ...(s as Skin), _baseValue: Number(s.value) || 1 };
+      return { skin: gs, mkt: state.market[s.id] ?? { id: s.id, mult: 1, trend: 0 } };
+    });
     if (marketFilter === "trending") arr.sort((a, b) => Math.abs(b.mkt.trend) - Math.abs(a.mkt.trend));
     else if (marketFilter === "cheap") arr.sort((a, b) => a.skin._baseValue * a.mkt.mult - b.skin._baseValue * b.mkt.mult);
     else arr.sort((a, b) => b.skin._baseValue * b.mkt.mult - a.skin._baseValue * a.mkt.mult);
