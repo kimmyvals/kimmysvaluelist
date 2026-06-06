@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Plus, LogIn, LogOut, Scale, Mail, Inbox, RefreshCw } from "lucide-react";
+import { Search, Plus, LogIn, LogOut, Scale, Mail, Inbox, RefreshCw, Gamepad2 } from "lucide-react";
 import { SkinCard, type Skin } from "@/components/SkinCard";
 import { SkinDialog } from "@/components/SkinDialog";
 import { RARITIES } from "@/lib/skin-options";
@@ -212,6 +212,11 @@ function Index() {
               <Link to="/calculator">
                 <Button variant="outline" size="sm">
                   <Scale className="mr-2 h-4 w-4" /> Trade Calc
+                </Button>
+              </Link>
+              <Link to="/games">
+                <Button variant="outline" size="sm">
+                  <Gamepad2 className="mr-2 h-4 w-4" /> Games
                 </Button>
               </Link>
               {user && isAdmin && (

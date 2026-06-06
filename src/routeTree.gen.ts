@@ -11,8 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as InboxRouteImport } from './routes/inbox'
+import { Route as GamesRouteImport } from './routes/games'
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GamesMemorizeRouteImport } from './routes/games.memorize'
+import { Route as GamesMarketRouteImport } from './routes/games.market'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -22,6 +25,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const InboxRoute = InboxRouteImport.update({
   id: '/inbox',
   path: '/inbox',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GamesRoute = GamesRouteImport.update({
+  id: '/games',
+  path: '/games',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CalculatorRoute = CalculatorRouteImport.update({
@@ -34,37 +42,79 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GamesMemorizeRoute = GamesMemorizeRouteImport.update({
+  id: '/memorize',
+  path: '/memorize',
+  getParentRoute: () => GamesRoute,
+} as any)
+const GamesMarketRoute = GamesMarketRouteImport.update({
+  id: '/market',
+  path: '/market',
+  getParentRoute: () => GamesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/calculator': typeof CalculatorRoute
+  '/games': typeof GamesRouteWithChildren
   '/inbox': typeof InboxRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/games/market': typeof GamesMarketRoute
+  '/games/memorize': typeof GamesMemorizeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/calculator': typeof CalculatorRoute
+  '/games': typeof GamesRouteWithChildren
   '/inbox': typeof InboxRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/games/market': typeof GamesMarketRoute
+  '/games/memorize': typeof GamesMemorizeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/calculator': typeof CalculatorRoute
+  '/games': typeof GamesRouteWithChildren
   '/inbox': typeof InboxRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/games/market': typeof GamesMarketRoute
+  '/games/memorize': typeof GamesMemorizeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/calculator' | '/inbox' | '/reset-password'
+  fullPaths:
+    | '/'
+    | '/calculator'
+    | '/games'
+    | '/inbox'
+    | '/reset-password'
+    | '/games/market'
+    | '/games/memorize'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/calculator' | '/inbox' | '/reset-password'
-  id: '__root__' | '/' | '/calculator' | '/inbox' | '/reset-password'
+  to:
+    | '/'
+    | '/calculator'
+    | '/games'
+    | '/inbox'
+    | '/reset-password'
+    | '/games/market'
+    | '/games/memorize'
+  id:
+    | '__root__'
+    | '/'
+    | '/calculator'
+    | '/games'
+    | '/inbox'
+    | '/reset-password'
+    | '/games/market'
+    | '/games/memorize'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CalculatorRoute: typeof CalculatorRoute
+  GamesRoute: typeof GamesRouteWithChildren
   InboxRoute: typeof InboxRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
 }
@@ -85,6 +135,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InboxRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/games': {
+      id: '/games'
+      path: '/games'
+      fullPath: '/games'
+      preLoaderRoute: typeof GamesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/calculator': {
       id: '/calculator'
       path: '/calculator'
@@ -99,12 +156,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/games/memorize': {
+      id: '/games/memorize'
+      path: '/memorize'
+      fullPath: '/games/memorize'
+      preLoaderRoute: typeof GamesMemorizeRouteImport
+      parentRoute: typeof GamesRoute
+    }
+    '/games/market': {
+      id: '/games/market'
+      path: '/market'
+      fullPath: '/games/market'
+      preLoaderRoute: typeof GamesMarketRouteImport
+      parentRoute: typeof GamesRoute
+    }
   }
 }
+
+interface GamesRouteChildren {
+  GamesMarketRoute: typeof GamesMarketRoute
+  GamesMemorizeRoute: typeof GamesMemorizeRoute
+}
+
+const GamesRouteChildren: GamesRouteChildren = {
+  GamesMarketRoute: GamesMarketRoute,
+  GamesMemorizeRoute: GamesMemorizeRoute,
+}
+
+const GamesRouteWithChildren = GamesRoute._addFileChildren(GamesRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CalculatorRoute: CalculatorRoute,
+  GamesRoute: GamesRouteWithChildren,
   InboxRoute: InboxRoute,
   ResetPasswordRoute: ResetPasswordRoute,
 }
