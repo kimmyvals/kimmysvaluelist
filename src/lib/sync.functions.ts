@@ -76,12 +76,16 @@ function findHeaderRow(rows: string[][]): number {
   return 0;
 }
 
+function normKey(s: string) {
+  return (s ?? "").replace(/\s+/g, " ").trim().toLowerCase();
+}
+
 function makeGetter(headers: string[]) {
   const map = new Map<string, number>();
-  headers.forEach((h, i) => map.set((h ?? "").trim().toLowerCase(), i));
+  headers.forEach((h, i) => map.set(normKey(h), i));
   return (row: string[], ...keys: string[]) => {
     for (const k of keys) {
-      const idx = map.get(k.toLowerCase());
+      const idx = map.get(normKey(k));
       if (idx != null && row[idx] != null && String(row[idx]).trim() !== "") return row[idx];
     }
     return "";
