@@ -148,7 +148,7 @@ function MarketGame() {
         if (orders.length < targetOrders && skins.length) {
           const skin = skins[Math.floor(Math.random() * skins.length)];
           const mkt = market[skin.id];
-          const price = Math.max(1, skin._baseValue * mkt.mult);
+          const price = Math.max(1, (Number(skin.value) || 1) * mkt.mult);
           const premium = 1.15 + Math.random() * 0.35 + s.upgrades.orderPay * 0.07; // 1.15x..1.50x +
           const qty = 1 + Math.floor(Math.random() * 3);
           const lifeMs = 25_000 + Math.floor(Math.random() * 35_000);
