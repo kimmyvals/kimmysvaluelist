@@ -221,7 +221,8 @@ export function SkinCard({ skin, onClick }: { skin: Skin; onClick: () => void })
                 )}
                 <TrendBadge value={skin.kt_trend} />
               </div>
-              <span>KT/SV Dmd: <span className="font-mono text-foreground">{skin.kt_sv_demand != null ? Number(skin.kt_sv_demand).toLocaleString() : "—"}</span></span>
+              <span>{skin.season === "Infect '24" ? "SV" : "KT"} Dmd: <span className="font-mono text-foreground">{skin.kt_sv_demand != null ? Number(skin.kt_sv_demand).toLocaleString() : "—"}</span></span>
+
             </div>
           )}
           {skin.amount_unboxed && (
