@@ -282,11 +282,9 @@ function CalculatorPage() {
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <Link to="/">
-                <Button variant="outline" size="sm">
-                  <ArrowLeft className="mr-2 h-4 w-4" /> Back
-                </Button>
-              </Link>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/"><ArrowLeft className="mr-2 h-4 w-4" /> Back</Link>
+              </Button>
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
                 <Scale className="h-3 w-3" /> Trade Calculator
               </div>
