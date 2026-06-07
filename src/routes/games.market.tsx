@@ -10,6 +10,7 @@ import { ArrowLeft, Coins, TrendingUp, TrendingDown, Package, Zap, Hammer, Rotat
 import { toast } from "sonner";
 import type { Skin } from "@/components/SkinCard";
 import { encodeImageUrl } from "@/lib/contact";
+import { useCloudSave } from "@/lib/use-cloud-save";
 
 export const Route = createFileRoute("/games/market")({
   component: MarketGame,
@@ -114,6 +115,10 @@ function MarketGame() {
     const id = setTimeout(() => saveSave(state), 200);
     return () => clearTimeout(id);
   }, [state]);
+
+  // Cloud save (signed-in only) — guest local state transfers up automatically.
+  useCloudSave({ key: "market", storageKey: STORAGE_KEY, state, setState });
+
 
   // ---------- Market simulation tick ----------
   useEffect(() => {
@@ -311,7 +316,7 @@ function MarketGame() {
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <Link to="/games"><Button variant="ghost" size="sm"><ArrowLeft className="mr-2 h-4 w-4" /> Games</Button></Link>
+              <Button asChild variant="ghost" size="sm"><Link to="/games"><ArrowLeft className="mr-2 h-4 w-4" /> Games</Link></Button>
               <h1 className="font-display text-2xl font-bold sm:text-3xl">Market Tycoon</h1>
             </div>
             <Button variant="ghost" size="sm" onClick={reset}><RotateCcw className="mr-2 h-4 w-4" /> Reset</Button>

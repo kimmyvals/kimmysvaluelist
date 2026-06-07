@@ -11,11 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as InboxRouteImport } from './routes/inbox'
-import { Route as GamesRouteImport } from './routes/games'
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GamesIndexRouteImport } from './routes/games.index'
 import { Route as GamesMemorizeRouteImport } from './routes/games.memorize'
 import { Route as GamesMarketRouteImport } from './routes/games.market'
+import { Route as GamesCasesRouteImport } from './routes/games.cases'
+import { Route as ApiPublicHooksSyncSheetRouteImport } from './routes/api/public/hooks/sync-sheet'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -25,11 +27,6 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const InboxRoute = InboxRouteImport.update({
   id: '/inbox',
   path: '/inbox',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GamesRoute = GamesRouteImport.update({
-  id: '/games',
-  path: '/games',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CalculatorRoute = CalculatorRouteImport.update({
@@ -42,81 +39,112 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GamesIndexRoute = GamesIndexRouteImport.update({
+  id: '/games/',
+  path: '/games/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GamesMemorizeRoute = GamesMemorizeRouteImport.update({
-  id: '/memorize',
-  path: '/memorize',
-  getParentRoute: () => GamesRoute,
+  id: '/games/memorize',
+  path: '/games/memorize',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const GamesMarketRoute = GamesMarketRouteImport.update({
-  id: '/market',
-  path: '/market',
-  getParentRoute: () => GamesRoute,
+  id: '/games/market',
+  path: '/games/market',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GamesCasesRoute = GamesCasesRouteImport.update({
+  id: '/games/cases',
+  path: '/games/cases',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicHooksSyncSheetRoute = ApiPublicHooksSyncSheetRouteImport.update({
+  id: '/api/public/hooks/sync-sheet',
+  path: '/api/public/hooks/sync-sheet',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/calculator': typeof CalculatorRoute
-  '/games': typeof GamesRouteWithChildren
   '/inbox': typeof InboxRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/games/cases': typeof GamesCasesRoute
   '/games/market': typeof GamesMarketRoute
   '/games/memorize': typeof GamesMemorizeRoute
+  '/games/': typeof GamesIndexRoute
+  '/api/public/hooks/sync-sheet': typeof ApiPublicHooksSyncSheetRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/calculator': typeof CalculatorRoute
-  '/games': typeof GamesRouteWithChildren
   '/inbox': typeof InboxRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/games/cases': typeof GamesCasesRoute
   '/games/market': typeof GamesMarketRoute
   '/games/memorize': typeof GamesMemorizeRoute
+  '/games': typeof GamesIndexRoute
+  '/api/public/hooks/sync-sheet': typeof ApiPublicHooksSyncSheetRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/calculator': typeof CalculatorRoute
-  '/games': typeof GamesRouteWithChildren
   '/inbox': typeof InboxRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/games/cases': typeof GamesCasesRoute
   '/games/market': typeof GamesMarketRoute
   '/games/memorize': typeof GamesMemorizeRoute
+  '/games/': typeof GamesIndexRoute
+  '/api/public/hooks/sync-sheet': typeof ApiPublicHooksSyncSheetRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/calculator'
-    | '/games'
     | '/inbox'
     | '/reset-password'
+    | '/games/cases'
     | '/games/market'
     | '/games/memorize'
+    | '/games/'
+    | '/api/public/hooks/sync-sheet'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/calculator'
-    | '/games'
     | '/inbox'
     | '/reset-password'
+    | '/games/cases'
     | '/games/market'
     | '/games/memorize'
+    | '/games'
+    | '/api/public/hooks/sync-sheet'
   id:
     | '__root__'
     | '/'
     | '/calculator'
-    | '/games'
     | '/inbox'
     | '/reset-password'
+    | '/games/cases'
     | '/games/market'
     | '/games/memorize'
+    | '/games/'
+    | '/api/public/hooks/sync-sheet'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CalculatorRoute: typeof CalculatorRoute
-  GamesRoute: typeof GamesRouteWithChildren
   InboxRoute: typeof InboxRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  GamesCasesRoute: typeof GamesCasesRoute
+  GamesMarketRoute: typeof GamesMarketRoute
+  GamesMemorizeRoute: typeof GamesMemorizeRoute
+  GamesIndexRoute: typeof GamesIndexRoute
+  ApiPublicHooksSyncSheetRoute: typeof ApiPublicHooksSyncSheetRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -135,13 +163,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InboxRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/games': {
-      id: '/games'
-      path: '/games'
-      fullPath: '/games'
-      preLoaderRoute: typeof GamesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/calculator': {
       id: '/calculator'
       path: '/calculator'
@@ -156,41 +177,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/games/': {
+      id: '/games/'
+      path: '/games'
+      fullPath: '/games/'
+      preLoaderRoute: typeof GamesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/games/memorize': {
       id: '/games/memorize'
-      path: '/memorize'
+      path: '/games/memorize'
       fullPath: '/games/memorize'
       preLoaderRoute: typeof GamesMemorizeRouteImport
-      parentRoute: typeof GamesRoute
+      parentRoute: typeof rootRouteImport
     }
     '/games/market': {
       id: '/games/market'
-      path: '/market'
+      path: '/games/market'
       fullPath: '/games/market'
       preLoaderRoute: typeof GamesMarketRouteImport
-      parentRoute: typeof GamesRoute
+      parentRoute: typeof rootRouteImport
+    }
+    '/games/cases': {
+      id: '/games/cases'
+      path: '/games/cases'
+      fullPath: '/games/cases'
+      preLoaderRoute: typeof GamesCasesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/sync-sheet': {
+      id: '/api/public/hooks/sync-sheet'
+      path: '/api/public/hooks/sync-sheet'
+      fullPath: '/api/public/hooks/sync-sheet'
+      preLoaderRoute: typeof ApiPublicHooksSyncSheetRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface GamesRouteChildren {
-  GamesMarketRoute: typeof GamesMarketRoute
-  GamesMemorizeRoute: typeof GamesMemorizeRoute
-}
-
-const GamesRouteChildren: GamesRouteChildren = {
-  GamesMarketRoute: GamesMarketRoute,
-  GamesMemorizeRoute: GamesMemorizeRoute,
-}
-
-const GamesRouteWithChildren = GamesRoute._addFileChildren(GamesRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CalculatorRoute: CalculatorRoute,
-  GamesRoute: GamesRouteWithChildren,
   InboxRoute: InboxRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  GamesCasesRoute: GamesCasesRoute,
+  GamesMarketRoute: GamesMarketRoute,
+  GamesMemorizeRoute: GamesMemorizeRoute,
+  GamesIndexRoute: GamesIndexRoute,
+  ApiPublicHooksSyncSheetRoute: ApiPublicHooksSyncSheetRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

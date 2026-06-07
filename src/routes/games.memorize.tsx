@@ -10,6 +10,7 @@ import { ArrowLeft, Flame, Target, Check, X, RefreshCw, Trophy } from "lucide-re
 import { toast } from "sonner";
 import type { Skin } from "@/components/SkinCard";
 import { encodeImageUrl } from "@/lib/contact";
+import { useCloudSave } from "@/lib/use-cloud-save";
 
 export const Route = createFileRoute("/games/memorize")({
   component: MemorizeGame,
@@ -65,6 +66,8 @@ function MemorizeGame() {
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
   const [stats, setStats] = useState<Stats>(() => loadStats());
   useEffect(() => saveStats(stats), [stats]);
+  useCloudSave({ key: "memorize", storageKey: STORAGE, state: stats, setState: setStats });
+
 
   const pool = useMemo(() => {
     const wantedRarities =
@@ -164,7 +167,7 @@ function MemorizeGame() {
         <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <Link to="/games"><Button variant="ghost" size="sm"><ArrowLeft className="mr-2 h-4 w-4" /> Games</Button></Link>
+              <Button asChild variant="ghost" size="sm"><Link to="/games"><ArrowLeft className="mr-2 h-4 w-4" /> Games</Link></Button>
               <h1 className="font-display text-2xl font-bold sm:text-3xl">Value Trainer</h1>
             </div>
           </div>

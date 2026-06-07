@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, MousePointerClick, Brain } from "lucide-react";
+import { ArrowLeft, MousePointerClick, Brain, Package } from "lucide-react";
 
-export const Route = createFileRoute("/games")({
+export const Route = createFileRoute("/games/")({
   component: GamesHub,
   head: () => ({
     meta: [
@@ -18,7 +18,9 @@ function GamesHub() {
     <div className="min-h-screen">
       <header className="border-b border-border/60" style={{ background: "var(--gradient-hero)" }}>
         <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-          <Link to="/"><Button variant="ghost" size="sm" className="mb-4"><ArrowLeft className="mr-2 h-4 w-4" /> Back</Button></Link>
+          <Button asChild variant="ghost" size="sm" className="mb-4">
+            <Link to="/"><ArrowLeft className="mr-2 h-4 w-4" /> Back</Link>
+          </Button>
           <h1 className="font-display text-4xl font-bold sm:text-5xl">
             <span className="text-primary" style={{ textShadow: "var(--glow-primary)" }}>Games</span>
           </h1>
@@ -29,7 +31,7 @@ function GamesHub() {
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <GameCard
             to="/games/market"
             icon={<MousePointerClick className="h-6 w-6" />}
@@ -37,6 +39,14 @@ function GamesHub() {
             tagline="Click. Trade. Dominate."
             description="A living market where every skin's value rises and falls in real-time. Click to earn scrip, fulfill incoming orders for premium pay, and build the most valuable inventory on the server."
             accent="from-[#a02424] to-[#c9961a]"
+          />
+          <GameCard
+            to="/games/cases"
+            icon={<Package className="h-6 w-6" />}
+            title="Case Opening"
+            tagline="Three free cases every hour."
+            description="Open simulated cases with real rarity odds. Build a collection, chase exotics, and track your luckiest pulls. Comes back to you every hour with fresh spins."
+            accent="from-[#5a8a3a] to-[#c9961a]"
           />
           <GameCard
             to="/games/memorize"
