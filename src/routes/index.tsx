@@ -83,15 +83,8 @@ function Index() {
     },
   });
 
-  // Auto-sync once per page load — editors only (avoids unauth writes & load).
-  const autoRanRef = useRef(false);
-  useEffect(() => {
-    if (autoRanRef.current) return;
-    if (!isEditor) return;
-    autoRanRef.current = true;
-    syncMut.mutate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditor]);
+  // Auto-sync handled by hourly cron — no per-page-load sync (keeps page fast).
+  void useRef;
 
   const lastSyncedLabel = useMemo(() => {
     const ts = syncStatus?.lastSyncedAt;
@@ -209,22 +202,16 @@ function Index() {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto sm:justify-end">
-              <Link to="/calculator">
-                <Button variant="outline" size="sm">
-                  <Scale className="mr-2 h-4 w-4" /> Trade Calc
-                </Button>
-              </Link>
-              <Link to="/games">
-                <Button variant="outline" size="sm">
-                  <Gamepad2 className="mr-2 h-4 w-4" /> Games
-                </Button>
-              </Link>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/calculator"><Scale className="mr-2 h-4 w-4" /> Trade Calc</Link>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/games"><Gamepad2 className="mr-2 h-4 w-4" /> Games</Link>
+              </Button>
               {user && isAdmin && (
-                <Link to="/inbox">
-                  <Button variant="outline" size="sm">
-                    <Inbox className="mr-2 h-4 w-4" /> Inbox
-                  </Button>
-                </Link>
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/inbox"><Inbox className="mr-2 h-4 w-4" /> Inbox</Link>
+                </Button>
               )}
               {user && (
                 <Button variant="outline" size="sm" onClick={() => setContactOpen(true)}>

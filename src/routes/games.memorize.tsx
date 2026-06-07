@@ -164,7 +164,7 @@ function MemorizeGame() {
         <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <Link to="/games"><Button variant="ghost" size="sm"><ArrowLeft className="mr-2 h-4 w-4" /> Games</Button></Link>
+              <Button asChild variant="ghost" size="sm"><Link to="/games"><ArrowLeft className="mr-2 h-4 w-4" /> Games</Link></Button>
               <h1 className="font-display text-2xl font-bold sm:text-3xl">Value Trainer</h1>
             </div>
           </div>
