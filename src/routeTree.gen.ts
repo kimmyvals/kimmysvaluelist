@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as GamesIndexRouteImport } from './routes/games.index'
 import { Route as GamesMemorizeRouteImport } from './routes/games.memorize'
 import { Route as GamesMarketRouteImport } from './routes/games.market'
+import { Route as GamesCasesRouteImport } from './routes/games.cases'
 import { Route as ApiPublicHooksSyncSheetRouteImport } from './routes/api/public/hooks/sync-sheet'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -53,6 +54,11 @@ const GamesMarketRoute = GamesMarketRouteImport.update({
   path: '/games/market',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GamesCasesRoute = GamesCasesRouteImport.update({
+  id: '/games/cases',
+  path: '/games/cases',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksSyncSheetRoute = ApiPublicHooksSyncSheetRouteImport.update({
   id: '/api/public/hooks/sync-sheet',
   path: '/api/public/hooks/sync-sheet',
@@ -64,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/calculator': typeof CalculatorRoute
   '/inbox': typeof InboxRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/games/cases': typeof GamesCasesRoute
   '/games/market': typeof GamesMarketRoute
   '/games/memorize': typeof GamesMemorizeRoute
   '/games/': typeof GamesIndexRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/calculator': typeof CalculatorRoute
   '/inbox': typeof InboxRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/games/cases': typeof GamesCasesRoute
   '/games/market': typeof GamesMarketRoute
   '/games/memorize': typeof GamesMemorizeRoute
   '/games': typeof GamesIndexRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/calculator': typeof CalculatorRoute
   '/inbox': typeof InboxRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/games/cases': typeof GamesCasesRoute
   '/games/market': typeof GamesMarketRoute
   '/games/memorize': typeof GamesMemorizeRoute
   '/games/': typeof GamesIndexRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/inbox'
     | '/reset-password'
+    | '/games/cases'
     | '/games/market'
     | '/games/memorize'
     | '/games/'
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/inbox'
     | '/reset-password'
+    | '/games/cases'
     | '/games/market'
     | '/games/memorize'
     | '/games'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/inbox'
     | '/reset-password'
+    | '/games/cases'
     | '/games/market'
     | '/games/memorize'
     | '/games/'
@@ -128,6 +140,7 @@ export interface RootRouteChildren {
   CalculatorRoute: typeof CalculatorRoute
   InboxRoute: typeof InboxRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  GamesCasesRoute: typeof GamesCasesRoute
   GamesMarketRoute: typeof GamesMarketRoute
   GamesMemorizeRoute: typeof GamesMemorizeRoute
   GamesIndexRoute: typeof GamesIndexRoute
@@ -185,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GamesMarketRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/games/cases': {
+      id: '/games/cases'
+      path: '/games/cases'
+      fullPath: '/games/cases'
+      preLoaderRoute: typeof GamesCasesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/sync-sheet': {
       id: '/api/public/hooks/sync-sheet'
       path: '/api/public/hooks/sync-sheet'
@@ -200,6 +220,7 @@ const rootRouteChildren: RootRouteChildren = {
   CalculatorRoute: CalculatorRoute,
   InboxRoute: InboxRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  GamesCasesRoute: GamesCasesRoute,
   GamesMarketRoute: GamesMarketRoute,
   GamesMemorizeRoute: GamesMemorizeRoute,
   GamesIndexRoute: GamesIndexRoute,
@@ -208,3 +229,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
