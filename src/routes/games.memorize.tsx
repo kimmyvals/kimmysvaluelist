@@ -66,6 +66,8 @@ function MemorizeGame() {
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
   const [stats, setStats] = useState<Stats>(() => loadStats());
   useEffect(() => saveStats(stats), [stats]);
+  useCloudSave({ key: "memorize", storageKey: STORAGE, state: stats, setState: setStats });
+
 
   const pool = useMemo(() => {
     const wantedRarities =
