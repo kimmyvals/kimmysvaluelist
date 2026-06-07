@@ -10,6 +10,7 @@ import { ArrowLeft, Flame, Target, Check, X, RefreshCw, Trophy } from "lucide-re
 import { toast } from "sonner";
 import type { Skin } from "@/components/SkinCard";
 import { encodeImageUrl } from "@/lib/contact";
+import { useCloudSave } from "@/lib/use-cloud-save";
 
 export const Route = createFileRoute("/games/memorize")({
   component: MemorizeGame,

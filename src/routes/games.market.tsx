@@ -10,6 +10,7 @@ import { ArrowLeft, Coins, TrendingUp, TrendingDown, Package, Zap, Hammer, Rotat
 import { toast } from "sonner";
 import type { Skin } from "@/components/SkinCard";
 import { encodeImageUrl } from "@/lib/contact";
+import { useCloudSave } from "@/lib/use-cloud-save";
 
 export const Route = createFileRoute("/games/market")({
   component: MarketGame,
@@ -114,6 +115,10 @@ function MarketGame() {
     const id = setTimeout(() => saveSave(state), 200);
     return () => clearTimeout(id);
   }, [state]);
+
+  // Cloud save (signed-in only) — guest local state transfers up automatically.
+  useCloudSave({ key: "market", storageKey: STORAGE_KEY, state, setState });
+
 
   // ---------- Market simulation tick ----------
   useEffect(() => {
