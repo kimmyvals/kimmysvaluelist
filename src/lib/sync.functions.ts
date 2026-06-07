@@ -150,25 +150,11 @@ export const getSyncStatus = createServerFn({ method: "GET" }).handler(async () 
   };
 });
 
-// Editor-only sync. Throttled to avoid hammering the DB.
-export const syncFromGoogleSheet = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<SyncResult> => {
-    const { supabase, userId } = context;
+// Shared core: do the actual sheet pull + upsert. Respects throttle unless `force`.
+export async function runSheetSync(opts?: { force?: boolean }): Promise<SyncResult> {
+  const out: SyncResult = { main: 0, exotics: 0, errors: [], at: new Date().toISOString() };
 
-    // Gate: editor or admin only.
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId);
-    const roleSet = new Set((roles ?? []).map((r) => r.role));
-    if (!roleSet.has("editor") && !roleSet.has("admin")) {
-      throw new Error("Forbidden");
-    }
-
-    const out: SyncResult = { main: 0, exotics: 0, errors: [], at: new Date().toISOString() };
-
-    // Throttle by reading last sync time.
+  if (!opts?.force) {
     const { data: state } = await supabaseAdmin
       .from("sync_state")
       .select("last_synced_at")
@@ -180,45 +166,63 @@ export const syncFromGoogleSheet = createServerFn({ method: "POST" })
         return { ...out, at: state.last_synced_at, skipped: true };
       }
     }
+  }
 
-    const tasks: Array<[string, Section, string[]]> = [
-      ["main", "main", MAIN_TAB_CANDIDATES],
-      ["exotics", "exotics", EXOTIC_TAB_CANDIDATES],
-    ];
+  const tasks: Array<[string, Section, string[]]> = [
+    ["main", "main", MAIN_TAB_CANDIDATES],
+    ["exotics", "exotics", EXOTIC_TAB_CANDIDATES],
+  ];
 
-    for (const [label, section, candidates] of tasks) {
-      try {
-        const rows = await fetchTab(candidates);
-        const records = buildRecords(rows, section);
-        if (!records.length) {
-          out.errors.push(`${label}: no rows parsed`);
-          continue;
-        }
-        const { error } = await supabaseAdmin
-          .from("skins")
-          .upsert(records, { onConflict: "weapon_type,name" });
-        if (error) {
-          console.error(`[sync] ${label} upsert error:`, error.message);
-          out.errors.push(`${label}: sync failed`);
-          continue;
-        }
-        if (section === "main") out.main = records.length;
-        else out.exotics = records.length;
-      } catch (e) {
-        console.error(`[sync] ${label} error:`, e);
-        out.errors.push(`${label}: sync failed`);
+  for (const [label, section, candidates] of tasks) {
+    try {
+      const rows = await fetchTab(candidates);
+      const records = buildRecords(rows, section);
+      if (!records.length) {
+        out.errors.push(`${label}: no rows parsed`);
+        continue;
       }
+      // Upsert handles both inserts (new skins from sheet) and updates.
+      const { error } = await supabaseAdmin
+        .from("skins")
+        .upsert(records, { onConflict: "weapon_type,name" });
+      if (error) {
+        console.error(`[sync] ${label} upsert error:`, error.message);
+        out.errors.push(`${label}: sync failed`);
+        continue;
+      }
+      if (section === "main") out.main = records.length;
+      else out.exotics = records.length;
+    } catch (e) {
+      console.error(`[sync] ${label} error:`, e);
+      out.errors.push(`${label}: sync failed`);
     }
+  }
 
-    // Persist sync state so all visitors can see when it last ran.
-    await supabaseAdmin.from("sync_state").upsert({
-      id: "sheet",
-      last_synced_at: out.at,
-      main_count: out.main,
-      exotics_count: out.exotics,
-      last_error: out.errors.length ? out.errors.join("; ").slice(0, 500) : null,
-    });
-
-    return out;
+  await supabaseAdmin.from("sync_state").upsert({
+    id: "sheet",
+    last_synced_at: out.at,
+    main_count: out.main,
+    exotics_count: out.exotics,
+    last_error: out.errors.length ? out.errors.join("; ").slice(0, 500) : null,
   });
+
+  return out;
+}
+
+// Editor-only sync. Throttled to avoid hammering the DB.
+export const syncFromGoogleSheet = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<SyncResult> => {
+    const { supabase, userId } = context;
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+    const roleSet = new Set((roles ?? []).map((r) => r.role));
+    if (!roleSet.has("editor") && !roleSet.has("admin")) {
+      throw new Error("Forbidden");
+    }
+    return runSheetSync();
+  });
+
 
