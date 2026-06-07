@@ -11,9 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as InboxRouteImport } from './routes/inbox'
-import { Route as GamesRouteImport } from './routes/games'
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GamesIndexRouteImport } from './routes/games.index'
 import { Route as GamesMemorizeRouteImport } from './routes/games.memorize'
 import { Route as GamesMarketRouteImport } from './routes/games.market'
 
@@ -27,11 +27,6 @@ const InboxRoute = InboxRouteImport.update({
   path: '/inbox',
   getParentRoute: () => rootRouteImport,
 } as any)
-const GamesRoute = GamesRouteImport.update({
-  id: '/games',
-  path: '/games',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const CalculatorRoute = CalculatorRouteImport.update({
   id: '/calculator',
   path: '/calculator',
@@ -40,6 +35,11 @@ const CalculatorRoute = CalculatorRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GamesIndexRoute = GamesIndexRouteImport.update({
+  id: '/games/',
+  path: '/games/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GamesMemorizeRoute = GamesMemorizeRouteImport.update({
@@ -56,67 +56,67 @@ const GamesMarketRoute = GamesMarketRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/calculator': typeof CalculatorRoute
-  '/games': typeof GamesRouteWithChildren
   '/inbox': typeof InboxRoute
   '/reset-password': typeof ResetPasswordRoute
   '/games/market': typeof GamesMarketRoute
   '/games/memorize': typeof GamesMemorizeRoute
+  '/games/': typeof GamesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/calculator': typeof CalculatorRoute
-  '/games': typeof GamesRouteWithChildren
   '/inbox': typeof InboxRoute
   '/reset-password': typeof ResetPasswordRoute
   '/games/market': typeof GamesMarketRoute
   '/games/memorize': typeof GamesMemorizeRoute
+  '/games': typeof GamesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/calculator': typeof CalculatorRoute
-  '/games': typeof GamesRouteWithChildren
   '/inbox': typeof InboxRoute
   '/reset-password': typeof ResetPasswordRoute
   '/games/market': typeof GamesMarketRoute
   '/games/memorize': typeof GamesMemorizeRoute
+  '/games/': typeof GamesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/calculator'
-    | '/games'
     | '/inbox'
     | '/reset-password'
     | '/games/market'
     | '/games/memorize'
+    | '/games/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/calculator'
-    | '/games'
     | '/inbox'
     | '/reset-password'
     | '/games/market'
     | '/games/memorize'
+    | '/games'
   id:
     | '__root__'
     | '/'
     | '/calculator'
-    | '/games'
     | '/inbox'
     | '/reset-password'
     | '/games/market'
     | '/games/memorize'
+    | '/games/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CalculatorRoute: typeof CalculatorRoute
-  GamesRoute: typeof GamesRouteWithChildren
   InboxRoute: typeof InboxRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  GamesIndexRoute: typeof GamesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -135,13 +135,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InboxRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/games': {
-      id: '/games'
-      path: '/games'
-      fullPath: '/games'
-      preLoaderRoute: typeof GamesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/calculator': {
       id: '/calculator'
       path: '/calculator'
@@ -154,6 +147,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/games/': {
+      id: '/games/'
+      path: '/games'
+      fullPath: '/games/'
+      preLoaderRoute: typeof GamesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/games/memorize': {
@@ -173,24 +173,12 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface GamesRouteChildren {
-  GamesMarketRoute: typeof GamesMarketRoute
-  GamesMemorizeRoute: typeof GamesMemorizeRoute
-}
-
-const GamesRouteChildren: GamesRouteChildren = {
-  GamesMarketRoute: GamesMarketRoute,
-  GamesMemorizeRoute: GamesMemorizeRoute,
-}
-
-const GamesRouteWithChildren = GamesRoute._addFileChildren(GamesRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CalculatorRoute: CalculatorRoute,
-  GamesRoute: GamesRouteWithChildren,
   InboxRoute: InboxRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  GamesIndexRoute: GamesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

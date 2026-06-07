@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, MousePointerClick, Brain } from "lucide-react";
 
-export const Route = createFileRoute("/games")({
+export const Route = createFileRoute("/games/")({
   component: GamesHub,
   head: () => ({
     meta: [
