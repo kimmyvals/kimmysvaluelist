@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as GamesIndexRouteImport } from './routes/games.index'
 import { Route as GamesMemorizeRouteImport } from './routes/games.memorize'
 import { Route as GamesMarketRouteImport } from './routes/games.market'
+import { Route as ApiPublicHooksSyncSheetRouteImport } from './routes/api/public/hooks/sync-sheet'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -52,6 +53,11 @@ const GamesMarketRoute = GamesMarketRouteImport.update({
   path: '/games/market',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksSyncSheetRoute = ApiPublicHooksSyncSheetRouteImport.update({
+  id: '/api/public/hooks/sync-sheet',
+  path: '/api/public/hooks/sync-sheet',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/games/market': typeof GamesMarketRoute
   '/games/memorize': typeof GamesMemorizeRoute
   '/games/': typeof GamesIndexRoute
+  '/api/public/hooks/sync-sheet': typeof ApiPublicHooksSyncSheetRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/games/market': typeof GamesMarketRoute
   '/games/memorize': typeof GamesMemorizeRoute
   '/games': typeof GamesIndexRoute
+  '/api/public/hooks/sync-sheet': typeof ApiPublicHooksSyncSheetRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/games/market': typeof GamesMarketRoute
   '/games/memorize': typeof GamesMemorizeRoute
   '/games/': typeof GamesIndexRoute
+  '/api/public/hooks/sync-sheet': typeof ApiPublicHooksSyncSheetRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/games/market'
     | '/games/memorize'
     | '/games/'
+    | '/api/public/hooks/sync-sheet'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/games/market'
     | '/games/memorize'
     | '/games'
+    | '/api/public/hooks/sync-sheet'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/games/market'
     | '/games/memorize'
     | '/games/'
+    | '/api/public/hooks/sync-sheet'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +131,7 @@ export interface RootRouteChildren {
   GamesMarketRoute: typeof GamesMarketRoute
   GamesMemorizeRoute: typeof GamesMemorizeRoute
   GamesIndexRoute: typeof GamesIndexRoute
+  ApiPublicHooksSyncSheetRoute: typeof ApiPublicHooksSyncSheetRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -172,6 +185,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GamesMarketRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/sync-sheet': {
+      id: '/api/public/hooks/sync-sheet'
+      path: '/api/public/hooks/sync-sheet'
+      fullPath: '/api/public/hooks/sync-sheet'
+      preLoaderRoute: typeof ApiPublicHooksSyncSheetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -183,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   GamesMarketRoute: GamesMarketRoute,
   GamesMemorizeRoute: GamesMemorizeRoute,
   GamesIndexRoute: GamesIndexRoute,
+  ApiPublicHooksSyncSheetRoute: ApiPublicHooksSyncSheetRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
