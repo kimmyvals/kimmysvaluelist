@@ -99,8 +99,7 @@ function DailyGame() {
     setSave(loadSave() ?? { lastPlayedDate: null, streak: 0, bestStreak: 0, totalPlays: 0, rewardsVC: 0, bestScoreByDate: {} });
   }, [save]);
   useEffect(() => { if (save) persist(save); }, [save]);
-  useCloudSave({ key: "memorize" as never, storageKey: STORAGE, state: save, setState: setSave });
-  // ^ piggy-back on existing cloud key namespace; the field is JSON so it's safe.
+  useCloudSave({ key: "daily", storageKey: STORAGE, state: save, setState: setSave });
 
   // ---- Game flow ----
   const [phase, setPhase] = useState<"intro" | "playing" | "done">("intro");
