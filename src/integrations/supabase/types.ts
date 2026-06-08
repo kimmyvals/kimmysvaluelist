@@ -53,6 +53,33 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_scores: {
+        Row: {
+          created_at: string
+          game_date: string
+          id: string
+          score: number
+          user_id: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          game_date: string
+          id?: string
+          score: number
+          user_id: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          game_date?: string
+          id?: string
+          score?: number
+          user_id?: string
+          username?: string
+        }
+        Relationships: []
+      }
       game_saves: {
         Row: {
           created_at: string
