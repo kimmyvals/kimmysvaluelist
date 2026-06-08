@@ -4,13 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Flame, Target, Check, X, RefreshCw, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import type { Skin } from "@/components/SkinCard";
-import { encodeImageUrl } from "@/lib/contact";
+import { SkinImage } from "@/components/SkinImage";
 import { useCloudSave } from "@/lib/use-cloud-save";
+import { GameTutorial, useTutorial } from "@/components/GameTutorial";
 
 export const Route = createFileRoute("/games/memorize")({
   component: MemorizeGame,
@@ -45,6 +44,21 @@ function saveStats(s: Stats) { try { localStorage.setItem(STORAGE, JSON.stringif
 function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]; }
 function shuffle<T>(arr: T[]): T[] { return [...arr].sort(() => Math.random() - 0.5); }
 
+/**
+ * Round a value to a "humanly plausible" tick — used for distractors so a
+ * 300-value skin doesn't get a 239 distractor (a player would know it's
+ * fake at a glance). Larger values snap to bigger increments.
+ */
+function snapToTick(v: number): number {
+  if (v < 50) return Math.max(1, Math.round(v));
+  if (v < 100) return Math.round(v / 5) * 5;
+  if (v < 500) return Math.round(v / 10) * 10;
+  if (v < 2000) return Math.round(v / 25) * 25;
+  if (v < 10_000) return Math.round(v / 50) * 50;
+  if (v < 100_000) return Math.round(v / 100) * 100;
+  return Math.round(v / 500) * 500;
+}
+
 type Question =
   | { kind: "name-from-image"; skin: Skin; choices: Skin[] }
   | { kind: "value-of-skin"; skin: Skin; choices: number[] }
@@ -52,6 +66,8 @@ type Question =
   | { kind: "image-from-name"; skin: Skin; choices: Skin[] };
 
 function MemorizeGame() {
+  const tut = useTutorial("memorize");
+
   const { data: skinsRaw = [], isLoading } = useQuery({
     queryKey: ["skins-train"],
     queryFn: async () => {
@@ -67,7 +83,6 @@ function MemorizeGame() {
   const [stats, setStats] = useState<Stats>(() => loadStats());
   useEffect(() => saveStats(stats), [stats]);
   useCloudSave({ key: "memorize", storageKey: STORAGE, state: stats, setState: setStats });
-
 
   const pool = useMemo(() => {
     const wantedRarities =
@@ -102,22 +117,28 @@ function MemorizeGame() {
     if (kind === "value-of-skin") {
       const real = Math.round(Number(skin.value));
       const distractors = new Set<number>();
-      while (distractors.size < 3) {
-        const factor = 0.4 + Math.random() * 1.6; // 0.4x..2x
-        let v = Math.round(real * factor);
-        if (v === real) v += Math.round(real * 0.1) + 1;
-        if (v <= 0) v = real + 50;
-        distractors.add(v);
+      let guard = 0;
+      while (distractors.size < 3 && guard++ < 50) {
+        const factor = 0.55 + Math.random() * 1.1; // 0.55x..1.65x — closer to real, so a snapped tick still feels plausible
+        let v = snapToTick(Math.round(real * factor));
+        if (v === real) v = snapToTick(real + (Math.random() < 0.5 ? -1 : 1) * Math.max(5, Math.round(real * 0.08)));
+        if (v <= 0) v = snapToTick(real + 50);
+        if (v !== real) distractors.add(v);
       }
-      const choices = shuffle([real, ...distractors]);
+      const choices = shuffle([real, ...Array.from(distractors)]);
       setQ({ kind, skin, choices });
     } else if (kind === "true-or-false") {
       const real = Math.round(Number(skin.value));
       const truthy = Math.random() < 0.5;
-      const shown = truthy ? real : Math.max(1, Math.round(real * (0.4 + Math.random() * 1.6)));
+      let shown = real;
+      if (!truthy) {
+        // Snap to a plausible tick so distractors don't give the answer away.
+        const factor = 0.6 + Math.random() * 0.9; // 0.6x..1.5x
+        shown = snapToTick(Math.max(1, Math.round(real * factor)));
+        if (shown === real) shown = snapToTick(real + Math.max(5, Math.round(real * 0.08)));
+      }
       setQ({ kind, skin, shown, correct: shown === real });
     } else {
-      // multi-choice between 4 skins
       const others = shuffle(sourcePool.filter((s) => s.id !== skin.id)).slice(0, 3);
       const choices = shuffle([skin, ...others]);
       setQ({ kind, skin, choices });
@@ -163,13 +184,20 @@ function MemorizeGame() {
 
   return (
     <div className="min-h-screen pb-16">
+      <GameTutorial {...tut.props} title="Value Trainer" steps={[
+        { title: "Four rotating modes", body: "Random mixes them up: name the skin from its image, pick the right value, judge a value as true/false, or pick the image from a name." },
+        { title: "Plausible distractors", body: "Wrong values are rounded to realistic ticks so you can't shortcut by spotting weird numbers — you actually have to know the list." },
+        { title: "Streak counts", body: <>Every correct answer extends your streak. Pick a difficulty (Easy = top rarities only, Hard = everything) and grind your accuracy up.</> },
+      ]} />
+
       <header className="border-b border-border/60" style={{ background: "var(--gradient-hero)" }}>
         <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <Button asChild variant="ghost" size="sm"><Link to="/games"><ArrowLeft className="mr-2 h-4 w-4" /> Games</Link></Button>
               <h1 className="font-display text-2xl font-bold sm:text-3xl">Value Trainer</h1>
             </div>
+            <tut.Trigger />
           </div>
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Stat icon={<Flame className="h-4 w-4 text-orange-400" />} label="Streak" value={String(stats.streak)} />
@@ -181,7 +209,6 @@ function MemorizeGame() {
       </header>
 
       <main className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
-        {/* Mode & difficulty controls */}
         <div className="mb-4 flex flex-wrap gap-2">
           <Pill active={mode === "random"} onClick={() => setMode("random")}>Random</Pill>
           {MODES.map((m) => (
@@ -225,8 +252,8 @@ function QuestionView({
     return (
       <div>
         <p className="mb-4 text-sm text-muted-foreground">What skin is this?</p>
-        <div className="mx-auto mb-6 flex h-48 w-full items-center justify-center rounded-lg border border-border/60 bg-secondary/40 p-4">
-          <img src={encodeImageUrl(q.skin.image_url!)} alt="mystery skin" className="max-h-full max-w-full object-contain" />
+        <div className="mx-auto mb-6 h-48 w-full rounded-lg border border-border/60 bg-secondary/40 p-4">
+          <SkinImage src={q.skin.image_url} alt="mystery skin" className="h-full w-full" />
         </div>
         <div className="grid grid-cols-2 gap-2">
           {q.choices.map((c) => (
@@ -252,7 +279,7 @@ function QuestionView({
                 revealed && picked === c.id ? "border-red-500" :
                 "border-border/60 hover:border-primary/60"
               }`}>
-              <img src={encodeImageUrl(c.image_url!)} alt="" className="max-h-full max-w-full object-contain" />
+              <SkinImage src={c.image_url} alt={c.name} className="h-full w-full" />
             </button>
           ))}
         </div>
@@ -330,7 +357,3 @@ function Stat({ label, value, icon }: { label: string; value: string; icon?: Rea
     </div>
   );
 }
-
-// Unused import guards (kept for future input-based modes)
-void Input;
-void Badge;
