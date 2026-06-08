@@ -14,9 +14,10 @@ import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GamesIndexRouteImport } from './routes/games.index'
+import { Route as GamesSnowfallRouteImport } from './routes/games.snowfall'
 import { Route as GamesMemorizeRouteImport } from './routes/games.memorize'
 import { Route as GamesMarketRouteImport } from './routes/games.market'
-import { Route as GamesCasesRouteImport } from './routes/games.cases'
+import { Route as GamesDailyRouteImport } from './routes/games.daily'
 import { Route as ApiPublicHooksSyncSheetRouteImport } from './routes/api/public/hooks/sync-sheet'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -44,6 +45,11 @@ const GamesIndexRoute = GamesIndexRouteImport.update({
   path: '/games/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GamesSnowfallRoute = GamesSnowfallRouteImport.update({
+  id: '/games/snowfall',
+  path: '/games/snowfall',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GamesMemorizeRoute = GamesMemorizeRouteImport.update({
   id: '/games/memorize',
   path: '/games/memorize',
@@ -54,9 +60,9 @@ const GamesMarketRoute = GamesMarketRouteImport.update({
   path: '/games/market',
   getParentRoute: () => rootRouteImport,
 } as any)
-const GamesCasesRoute = GamesCasesRouteImport.update({
-  id: '/games/cases',
-  path: '/games/cases',
+const GamesDailyRoute = GamesDailyRouteImport.update({
+  id: '/games/daily',
+  path: '/games/daily',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicHooksSyncSheetRoute = ApiPublicHooksSyncSheetRouteImport.update({
@@ -70,9 +76,10 @@ export interface FileRoutesByFullPath {
   '/calculator': typeof CalculatorRoute
   '/inbox': typeof InboxRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/games/cases': typeof GamesCasesRoute
+  '/games/daily': typeof GamesDailyRoute
   '/games/market': typeof GamesMarketRoute
   '/games/memorize': typeof GamesMemorizeRoute
+  '/games/snowfall': typeof GamesSnowfallRoute
   '/games/': typeof GamesIndexRoute
   '/api/public/hooks/sync-sheet': typeof ApiPublicHooksSyncSheetRoute
 }
@@ -81,9 +88,10 @@ export interface FileRoutesByTo {
   '/calculator': typeof CalculatorRoute
   '/inbox': typeof InboxRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/games/cases': typeof GamesCasesRoute
+  '/games/daily': typeof GamesDailyRoute
   '/games/market': typeof GamesMarketRoute
   '/games/memorize': typeof GamesMemorizeRoute
+  '/games/snowfall': typeof GamesSnowfallRoute
   '/games': typeof GamesIndexRoute
   '/api/public/hooks/sync-sheet': typeof ApiPublicHooksSyncSheetRoute
 }
@@ -93,9 +101,10 @@ export interface FileRoutesById {
   '/calculator': typeof CalculatorRoute
   '/inbox': typeof InboxRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/games/cases': typeof GamesCasesRoute
+  '/games/daily': typeof GamesDailyRoute
   '/games/market': typeof GamesMarketRoute
   '/games/memorize': typeof GamesMemorizeRoute
+  '/games/snowfall': typeof GamesSnowfallRoute
   '/games/': typeof GamesIndexRoute
   '/api/public/hooks/sync-sheet': typeof ApiPublicHooksSyncSheetRoute
 }
@@ -106,9 +115,10 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/inbox'
     | '/reset-password'
-    | '/games/cases'
+    | '/games/daily'
     | '/games/market'
     | '/games/memorize'
+    | '/games/snowfall'
     | '/games/'
     | '/api/public/hooks/sync-sheet'
   fileRoutesByTo: FileRoutesByTo
@@ -117,9 +127,10 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/inbox'
     | '/reset-password'
-    | '/games/cases'
+    | '/games/daily'
     | '/games/market'
     | '/games/memorize'
+    | '/games/snowfall'
     | '/games'
     | '/api/public/hooks/sync-sheet'
   id:
@@ -128,9 +139,10 @@ export interface FileRouteTypes {
     | '/calculator'
     | '/inbox'
     | '/reset-password'
-    | '/games/cases'
+    | '/games/daily'
     | '/games/market'
     | '/games/memorize'
+    | '/games/snowfall'
     | '/games/'
     | '/api/public/hooks/sync-sheet'
   fileRoutesById: FileRoutesById
@@ -140,9 +152,10 @@ export interface RootRouteChildren {
   CalculatorRoute: typeof CalculatorRoute
   InboxRoute: typeof InboxRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
-  GamesCasesRoute: typeof GamesCasesRoute
+  GamesDailyRoute: typeof GamesDailyRoute
   GamesMarketRoute: typeof GamesMarketRoute
   GamesMemorizeRoute: typeof GamesMemorizeRoute
+  GamesSnowfallRoute: typeof GamesSnowfallRoute
   GamesIndexRoute: typeof GamesIndexRoute
   ApiPublicHooksSyncSheetRoute: typeof ApiPublicHooksSyncSheetRoute
 }
@@ -184,6 +197,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GamesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/games/snowfall': {
+      id: '/games/snowfall'
+      path: '/games/snowfall'
+      fullPath: '/games/snowfall'
+      preLoaderRoute: typeof GamesSnowfallRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/games/memorize': {
       id: '/games/memorize'
       path: '/games/memorize'
@@ -198,11 +218,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GamesMarketRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/games/cases': {
-      id: '/games/cases'
-      path: '/games/cases'
-      fullPath: '/games/cases'
-      preLoaderRoute: typeof GamesCasesRouteImport
+    '/games/daily': {
+      id: '/games/daily'
+      path: '/games/daily'
+      fullPath: '/games/daily'
+      preLoaderRoute: typeof GamesDailyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/sync-sheet': {
@@ -220,22 +240,13 @@ const rootRouteChildren: RootRouteChildren = {
   CalculatorRoute: CalculatorRoute,
   InboxRoute: InboxRoute,
   ResetPasswordRoute: ResetPasswordRoute,
-  GamesCasesRoute: GamesCasesRoute,
+  GamesDailyRoute: GamesDailyRoute,
   GamesMarketRoute: GamesMarketRoute,
   GamesMemorizeRoute: GamesMemorizeRoute,
+  GamesSnowfallRoute: GamesSnowfallRoute,
   GamesIndexRoute: GamesIndexRoute,
   ApiPublicHooksSyncSheetRoute: ApiPublicHooksSyncSheetRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

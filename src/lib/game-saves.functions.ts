@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Json } from "@/integrations/supabase/types";
 
-export type GameKey = "market" | "memorize" | "cases";
+export type GameKey = "market" | "memorize" | "cases" | "snowfall" | "daily";
 
 export const loadGameSave = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
